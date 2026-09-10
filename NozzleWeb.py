@@ -640,8 +640,8 @@ html,body,[class*="css"],[data-testid="stAppViewContainer"]{font-family:"Noto Sa
 .section-kicker{margin-top:2rem;color:#0072ae;font-size:.7rem;font-weight:800;letter-spacing:.16em}.section-title{margin:.2rem 0;color:var(--navy);font-size:clamp(1.45rem,3vw,2.1rem);font-weight:800}.section-copy{color:var(--muted);font-size:.88rem;margin-bottom:1rem}
 .menu-card{min-height:215px;padding:1.25rem;border:1px solid var(--line);border-top:4px solid var(--blue);background:#fff;box-shadow:0 13px 32px rgba(7,40,68,.075)}.menu-card.pending{border-top-color:#a8b6c0;background:#f8fafb}.menu-card .num{color:var(--blue);font-size:.7rem;font-weight:800;letter-spacing:.14em}.menu-card.pending .num{color:#8596a3}.menu-card h3{margin:.7rem 0 .5rem;color:var(--navy);font-size:1.16rem}.menu-card p{min-height:63px;color:var(--muted);font-size:.82rem;line-height:1.65}.pill{display:inline-block;padding:.28rem .58rem;border-radius:99px;background:#e1f5fc;color:#006d9e;font-size:.66rem;font-weight:800}.pending .pill{background:#e9eef1;color:#71818d}
 .calc-intro{display:flex;align-items:center;justify-content:space-between;gap:2rem;margin:.25rem 0 1.35rem;padding:1.35rem 1.5rem;border:1px solid #cbdde7;border-left:6px solid var(--blue);background:linear-gradient(120deg,#fff 0,#f3f9fc 66%,#e1f3fa 100%);box-shadow:0 10px 28px rgba(7,40,68,.07)}.calc-intro .calc-index{color:#0079b6;font-size:.68rem;font-weight:800;letter-spacing:.16em}.calc-intro h1{margin:.3rem 0 .35rem;color:var(--navy);font-size:clamp(1.65rem,3vw,2.25rem);letter-spacing:-.045em}.calc-intro p{margin:0;color:#587184;font-size:.84rem}.calc-formula{flex:0 0 auto;padding:.75rem 1rem;border-radius:4px;background:#072844;color:#fff;font:700 1rem/1.2 Georgia,serif;letter-spacing:.04em}
-.workspace-head{margin:.1rem 0 .75rem}.workspace-head span{display:block;color:#0085c8;font-size:.65rem;font-weight:800;letter-spacing:.15em}.workspace-head h2{margin:.12rem 0;color:var(--navy);font-size:1.2rem}.workspace-head p{margin:.15rem 0;color:var(--muted);font-size:.78rem}.subhead{margin:.45rem 0 .55rem;color:#153b55;font-size:.84rem;font-weight:800}.subhead:before{content:"";display:inline-block;width:4px;height:13px;margin-right:.45rem;vertical-align:-2px;background:var(--blue)}
-.reference-guide{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.85fr);gap:1rem;padding:1rem;border:1px solid #bfd9e6;background:#f4f9fc}.guide-image{position:relative;width:100%;aspect-ratio:825/320;overflow:hidden;border:1px solid #b9ceda;background:#fff}.guide-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}.guide-mark{position:absolute;z-index:2;pointer-events:none;background:rgba(255,229,0,.68);mix-blend-mode:multiply}.guide-mark.row{left:1.55%;right:26.75%;top:76.55%;height:12.2%}.guide-mark.pressure-2{left:62%;top:33.4%;width:1.7%;height:55%}.guide-mark.pressure-3{left:68.6%;top:33.4%;width:1.7%;height:55%}.guide-copy{align-self:center}.guide-legend{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}.guide-item{padding:.65rem .7rem;background:#fff;border-left:4px solid #f0cf00;color:#496478;font-size:.78rem;line-height:1.45}.guide-item b{display:block;color:var(--navy);font-size:.82rem}.guide-example{margin-top:.65rem;padding:.72rem .8rem;background:#dff2fa;color:#23465e;font-size:.78rem;line-height:1.65}.guide-example b{color:#006fa7}.guide-note{margin:.6rem 0 0;color:#405e72;font-size:.76rem;line-height:1.6}[data-testid="stExpander"] summary{background:#102c42!important;border-radius:2px!important}[data-testid="stExpander"] summary,[data-testid="stExpander"] summary *{color:#fff!important;-webkit-text-fill-color:#fff!important;fill:#fff!important;opacity:1!important;font-weight:750!important}
+.workspace-head{margin:.15rem 0 1rem}.workspace-head span{display:block;color:#0079b6;font-size:.8rem;font-weight:800;letter-spacing:.14em}.workspace-head h2{margin:.22rem 0;color:var(--navy);font-size:1.48rem;line-height:1.3}.workspace-head p{margin:.25rem 0;color:var(--muted);font-size:.9rem}.subhead{margin:.45rem 0 .55rem;color:#153b55;font-size:.84rem;font-weight:800}.subhead:before{content:"";display:inline-block;width:4px;height:13px;margin-right:.45rem;vertical-align:-2px;background:var(--blue)}
+.reference-guide{padding:1rem;border:1px solid #bfd9e6;background:#f4f9fc}.catalog-table-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1rem;background:linear-gradient(100deg,#072844,#0a5480);color:#fff}.catalog-table-head span{font-size:.7rem;font-weight:800;letter-spacing:.14em;color:#63d5ff}.catalog-table-head strong{display:block;margin-top:.15rem;font-size:1rem}.catalog-table-head em{font-style:normal;font-size:.74rem;color:#d7edf6}.catalog-scroll{overflow-x:auto;background:#fff;border:1px solid #b9ceda;border-top:0}.catalog-table{width:100%;min-width:900px;border-collapse:collapse;table-layout:fixed;color:#18394f;font-size:.8rem}.catalog-table th,.catalog-table td{padding:.55rem .34rem;border:1px solid #b8cbd6;text-align:center;white-space:nowrap}.catalog-table thead tr:first-child th{background:#0b3a5c;color:#fff;font-weight:800}.catalog-table thead tr:nth-child(2) th{background:#dceff7;color:#123e5b;font-weight:800}.catalog-table th:nth-child(-n+3){width:10%}.catalog-table tbody tr:nth-child(even) td{background:#f5f9fb}.catalog-table tbody .selected-row td{box-shadow:inset 0 2px #e6ca00,inset 0 -2px #e6ca00;background:#eaf6fa}.catalog-table .selected-col{background:#fff7bd!important;box-shadow:inset 3px 0 #efd200,inset -3px 0 #efd200}.catalog-table thead .selected-col{color:#123348!important;background:#ffe45d!important}.catalog-table .row-key,.catalog-table .selected-point{background:#ffe45d!important;color:#092f49;font-weight:900}.guide-copy{display:grid;grid-template-columns:.8fr .8fr 1.15fr 1.45fr;gap:.65rem;margin-top:.75rem}.guide-item,.guide-example,.guide-note{margin:0;padding:.68rem .75rem;line-height:1.55}.guide-item{background:#fff;border-left:4px solid #f0cf00;color:#496478;font-size:.76rem}.guide-item b{display:block;color:var(--navy);font-size:.8rem}.guide-example{background:#dff2fa;color:#23465e;font-size:.76rem}.guide-example b{color:#006fa7}.guide-note{border-left:4px solid var(--blue);background:#fff;color:#405e72;font-size:.76rem}[data-testid="stExpander"] summary{background:#102c42!important;border-radius:2px!important}[data-testid="stExpander"] summary,[data-testid="stExpander"] summary *{color:#fff!important;-webkit-text-fill-color:#fff!important;fill:#fff!important;opacity:1!important;font-size:.9rem!important;font-weight:800!important}
 .panel-title{margin:.2rem 0 .7rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);color:var(--navy);font-size:.9rem;font-weight:800}.panel-title span{margin-right:.35rem;color:var(--blue)}
 .formula{padding:.9rem 1rem;border-left:4px solid var(--sky);background:#edf8fc;color:#284960;font-size:.81rem;line-height:1.75}.legal{margin-top:1.8rem;padding-top:.8rem;border-top:1px solid var(--line);color:#728695;font-size:.7rem;line-height:1.6}
 div[data-testid="stVerticalBlockBorderWrapper"]{border-color:var(--line)!important;border-radius:3px!important;background:rgba(255,255,255,.97);box-shadow:0 9px 25px rgba(7,40,68,.05)}
@@ -653,7 +653,7 @@ div[data-baseweb="radio"]{gap:.4rem}div[data-baseweb="radio"] label{padding:.45r
 [data-testid="stTextInput"] input::placeholder{color:#b9c3cc!important;-webkit-text-fill-color:#b9c3cc!important;opacity:1!important}[data-testid="stTextInput"] input:focus::placeholder{color:transparent!important;-webkit-text-fill-color:transparent!important}
 [data-testid="stNumberInput"] button{display:none!important}
 .stButton>button,.stDownloadButton>button{min-height:42px;border-radius:2px;font-weight:750;color:#fff!important;-webkit-text-fill-color:#fff!important;background:#111827!important;border-color:#111827!important}.stButton>button *,.stDownloadButton>button *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{border-color:var(--blue)!important;background:var(--blue)!important}
-@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}.reference-guide{grid-template-columns:1fr;padding:.7rem}.guide-copy{align-self:auto}}
+@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}.reference-guide{padding:.65rem}.catalog-table-head{align-items:flex-start;padding:.7rem}.catalog-table-head em{display:none}.guide-copy{grid-template-columns:1fr 1fr}.workspace-head span{font-size:.74rem}.workspace-head h2{font-size:1.32rem}.workspace-head p{font-size:.84rem}}
 </style>
 """
 
@@ -983,18 +983,37 @@ def flow_calculator() -> None:
 
     with st.expander("기준점 입력 방법", expanded=True):
         st.markdown(
-            f"""<div class="reference-guide">
-            <div class="guide-image">
-                <img src="{CATALOG_GUIDE_DATA_URI}" alt="카탈로그 압력별 노즐 유량 데이터 표">
-                <span class="guide-mark row"></span>
-                <span class="guide-mark pressure-2"></span>
-                <span class="guide-mark pressure-3"></span>
+            """<div class="reference-guide">
+            <div class="catalog-table-head">
+                <div><span>NOZZLE CAPACITY DATA</span><strong>압력별 노즐 용량 기준표</strong></div>
+                <em>유량 단위 · L/min</em>
+            </div>
+            <div class="catalog-scroll">
+                <table class="catalog-table" aria-label="압력별 노즐 용량 기준표">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">노즐 번호<br><small>용량 크기</small></th>
+                            <th rowspan="2">오리피스<br>직경 (mm)</th>
+                            <th rowspan="2">최대 이물<br>통과경 (mm)</th>
+                            <th colspan="10">액체 압력별 용량 (L/min)</th>
+                        </tr>
+                        <tr>
+                            <th>0.4</th><th>0.5</th><th>0.7</th><th>1.5</th>
+                            <th class="selected-col">2</th><th class="selected-col">3</th>
+                            <th>4</th><th>6</th><th>7</th><th>10</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>0.79</td><td>0.64</td><td>0.29</td><td>0.33</td><td>0.38</td><td>0.54</td><td class="selected-col">0.62</td><td class="selected-col">0.74</td><td>0.85</td><td>1.0</td><td>1.1</td><td>1.3</td></tr>
+                        <tr><td>1.5</td><td>1.2</td><td>0.64</td><td>0.44</td><td>0.49</td><td>0.57</td><td>0.81</td><td class="selected-col">0.93</td><td class="selected-col">1.1</td><td>1.3</td><td>1.5</td><td>1.6</td><td>1.9</td></tr>
+                        <tr class="selected-row"><td class="row-key">2</td><td>1.2</td><td>1.0</td><td>0.59</td><td>0.65</td><td>0.76</td><td>1.1</td><td class="selected-col selected-point">1.2</td><td class="selected-col selected-point">1.5</td><td>1.7</td><td>2.0</td><td>2.2</td><td>2.6</td></tr>
+                        <tr><td>3</td><td>1.5</td><td>1.0</td><td>0.88</td><td>0.98</td><td>1.1</td><td>1.6</td><td class="selected-col">1.9</td><td class="selected-col">2.2</td><td>2.5</td><td>3.1</td><td>3.3</td><td>3.9</td></tr>
+                    </tbody>
+                </table>
             </div>
             <div class="guide-copy">
-                <div class="guide-legend">
-                    <div class="guide-item"><b>노란색 세로선</b>가로 숫자 = 액체 압력 (bar)</div>
-                    <div class="guide-item"><b>노란색 가로선</b>세로 ‘용량 크기’ = 노즐 번호</div>
-                </div>
+                <div class="guide-item"><b>가로 압력값</b>숫자의 단위는 bar입니다.</div>
+                <div class="guide-item"><b>세로 용량 크기</b>노즐 번호로 확인합니다.</div>
                 <div class="guide-example"><b>예시 · 노즐 번호 2에서 목표 압력 2.50 bar</b><br>
                 기준점 1: <strong>2.00 bar / 1.20 LPM</strong><br>
                 기준점 2: <strong>3.00 bar / 1.50 LPM</strong></div>
