@@ -641,7 +641,7 @@ html,body,[class*="css"],[data-testid="stAppViewContainer"]{font-family:"Noto Sa
 .menu-card{min-height:215px;padding:1.25rem;border:1px solid var(--line);border-top:4px solid var(--blue);background:#fff;box-shadow:0 13px 32px rgba(7,40,68,.075)}.menu-card.pending{border-top-color:#a8b6c0;background:#f8fafb}.menu-card .num{color:var(--blue);font-size:.7rem;font-weight:800;letter-spacing:.14em}.menu-card.pending .num{color:#8596a3}.menu-card h3{margin:.7rem 0 .5rem;color:var(--navy);font-size:1.16rem}.menu-card p{min-height:63px;color:var(--muted);font-size:.82rem;line-height:1.65}.pill{display:inline-block;padding:.28rem .58rem;border-radius:99px;background:#e1f5fc;color:#006d9e;font-size:.66rem;font-weight:800}.pending .pill{background:#e9eef1;color:#71818d}
 .calc-intro{display:flex;align-items:center;justify-content:space-between;gap:2rem;margin:.25rem 0 1.35rem;padding:1.35rem 1.5rem;border:1px solid #cbdde7;border-left:6px solid var(--blue);background:linear-gradient(120deg,#fff 0,#f3f9fc 66%,#e1f3fa 100%);box-shadow:0 10px 28px rgba(7,40,68,.07)}.calc-intro .calc-index{color:#0079b6;font-size:.68rem;font-weight:800;letter-spacing:.16em}.calc-intro h1{margin:.3rem 0 .35rem;color:var(--navy);font-size:clamp(1.65rem,3vw,2.25rem);letter-spacing:-.045em}.calc-intro p{margin:0;color:#587184;font-size:.84rem}.calc-formula{flex:0 0 auto;padding:.75rem 1rem;border-radius:4px;background:#072844;color:#fff;font:700 1rem/1.2 Georgia,serif;letter-spacing:.04em}
 .workspace-head{margin:.1rem 0 .75rem}.workspace-head span{display:block;color:#0085c8;font-size:.65rem;font-weight:800;letter-spacing:.15em}.workspace-head h2{margin:.12rem 0;color:var(--navy);font-size:1.2rem}.workspace-head p{margin:.15rem 0;color:var(--muted);font-size:.78rem}.subhead{margin:.45rem 0 .55rem;color:#153b55;font-size:.84rem;font-weight:800}.subhead:before{content:"";display:inline-block;width:4px;height:13px;margin-right:.45rem;vertical-align:-2px;background:var(--blue)}
-.reference-guide{padding:.75rem;border:1px solid #bfd9e6;background:#f4f9fc}.guide-image{width:100%;aspect-ratio:825/320;overflow:hidden;border:1px solid #d2e0e7;background:#fff}.guide-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}.guide-legend{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.65rem}.guide-item{padding:.48rem .55rem;background:#fff;border-left:3px solid var(--blue);color:#496478;font-size:.72rem;line-height:1.35}.guide-item b{display:block;color:var(--navy);font-size:.74rem}.guide-example{margin-top:.55rem;padding:.62rem .7rem;background:#e2f3fa;color:#23465e;font-size:.73rem;line-height:1.55}.guide-example b{color:#006fa7}.guide-note{margin:.5rem 0 0;color:#536c7d;font-size:.71rem;line-height:1.5}
+.reference-guide{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.85fr);gap:1rem;padding:1rem;border:1px solid #bfd9e6;background:#f4f9fc}.guide-image{position:relative;width:100%;aspect-ratio:825/320;overflow:hidden;border:1px solid #b9ceda;background:#fff}.guide-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}.guide-mark{position:absolute;z-index:2;pointer-events:none;background:rgba(255,229,0,.68);mix-blend-mode:multiply}.guide-mark.row{left:1.55%;right:26.75%;top:76.55%;height:12.2%}.guide-mark.pressure-2{left:62%;top:33.4%;width:1.7%;height:55%}.guide-mark.pressure-3{left:68.6%;top:33.4%;width:1.7%;height:55%}.guide-copy{align-self:center}.guide-legend{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}.guide-item{padding:.65rem .7rem;background:#fff;border-left:4px solid #f0cf00;color:#496478;font-size:.78rem;line-height:1.45}.guide-item b{display:block;color:var(--navy);font-size:.82rem}.guide-example{margin-top:.65rem;padding:.72rem .8rem;background:#dff2fa;color:#23465e;font-size:.78rem;line-height:1.65}.guide-example b{color:#006fa7}.guide-note{margin:.6rem 0 0;color:#405e72;font-size:.76rem;line-height:1.6}[data-testid="stExpander"] summary{background:#102c42!important;border-radius:2px!important}[data-testid="stExpander"] summary,[data-testid="stExpander"] summary *{color:#fff!important;-webkit-text-fill-color:#fff!important;fill:#fff!important;opacity:1!important;font-weight:750!important}
 .panel-title{margin:.2rem 0 .7rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);color:var(--navy);font-size:.9rem;font-weight:800}.panel-title span{margin-right:.35rem;color:var(--blue)}
 .formula{padding:.9rem 1rem;border-left:4px solid var(--sky);background:#edf8fc;color:#284960;font-size:.81rem;line-height:1.75}.legal{margin-top:1.8rem;padding-top:.8rem;border-top:1px solid var(--line);color:#728695;font-size:.7rem;line-height:1.6}
 div[data-testid="stVerticalBlockBorderWrapper"]{border-color:var(--line)!important;border-radius:3px!important;background:rgba(255,255,255,.97);box-shadow:0 9px 25px rgba(7,40,68,.05)}
@@ -653,7 +653,7 @@ div[data-baseweb="radio"]{gap:.4rem}div[data-baseweb="radio"] label{padding:.45r
 [data-testid="stTextInput"] input::placeholder{color:#b9c3cc!important;-webkit-text-fill-color:#b9c3cc!important;opacity:1!important}[data-testid="stTextInput"] input:focus::placeholder{color:transparent!important;-webkit-text-fill-color:transparent!important}
 [data-testid="stNumberInput"] button{display:none!important}
 .stButton>button,.stDownloadButton>button{min-height:42px;border-radius:2px;font-weight:750;color:#fff!important;-webkit-text-fill-color:#fff!important;background:#111827!important;border-color:#111827!important}.stButton>button *,.stDownloadButton>button *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{border-color:var(--blue)!important;background:var(--blue)!important}
-@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}}
+@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}.reference-guide{grid-template-columns:1fr;padding:.7rem}.guide-copy{align-self:auto}}
 </style>
 """
 
@@ -981,6 +981,29 @@ def flow_calculator() -> None:
         st.button("← 계산기 목록", width="stretch", on_click=go, args=("home",))
     st.markdown("""<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 01</span><h1>노즐 분사량 계산기</h1><p>두 데이터시트 기준점의 평균 K값으로 목표 압력의 분사량을 계산합니다.</p></div><div class="calc-formula">Q = K√P</div></section>""", unsafe_allow_html=True)
 
+    with st.expander("기준점 입력 방법", expanded=True):
+        st.markdown(
+            f"""<div class="reference-guide">
+            <div class="guide-image">
+                <img src="{CATALOG_GUIDE_DATA_URI}" alt="카탈로그 압력별 노즐 유량 데이터 표">
+                <span class="guide-mark row"></span>
+                <span class="guide-mark pressure-2"></span>
+                <span class="guide-mark pressure-3"></span>
+            </div>
+            <div class="guide-copy">
+                <div class="guide-legend">
+                    <div class="guide-item"><b>노란색 세로선</b>가로 숫자 = 액체 압력 (bar)</div>
+                    <div class="guide-item"><b>노란색 가로선</b>세로 ‘용량 크기’ = 노즐 번호</div>
+                </div>
+                <div class="guide-example"><b>예시 · 노즐 번호 2에서 목표 압력 2.50 bar</b><br>
+                기준점 1: <strong>2.00 bar / 1.20 LPM</strong><br>
+                기준점 2: <strong>3.00 bar / 1.50 LPM</strong></div>
+                <p class="guide-note">목표 압력보다 낮은 값과 높은 값 중 가장 가까운 압력 두 개를 선택하고, 같은 노즐 번호 행의 유량을 입력하세요.</p>
+            </div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
     input_col, output_col = st.columns([0.92, 1.38], gap="large")
     with input_col:
         st.markdown("<div class='workspace-head'><span>INPUT CONDITIONS</span><h2>입력 조건</h2><p>노즐 정보와 운전 조건을 순서대로 입력하세요.</p></div>", unsafe_allow_html=True)
@@ -992,21 +1015,6 @@ def flow_calculator() -> None:
             target_liquid, target_air = targets(mode)
             st.markdown("<div class='subhead'>데이터시트 기준점</div>", unsafe_allow_html=True)
             st.caption("P1과 P2를 모두 적용하여 두 K값의 평균으로 계산합니다.")
-            with st.expander("기준점 입력 방법", expanded=True):
-                st.markdown(
-                    f"""<div class="reference-guide">
-                    <div class="guide-image"><img src="{CATALOG_GUIDE_DATA_URI}" alt="카탈로그 압력별 노즐 유량 데이터 표"></div>
-                    <div class="guide-legend">
-                        <div class="guide-item"><b>가로 숫자</b>액체 압력 (bar)</div>
-                        <div class="guide-item"><b>세로 ‘용량 크기’</b>노즐 번호</div>
-                    </div>
-                    <div class="guide-example"><b>예시 · 노즐 번호 2에서 목표 압력 2.50 bar</b><br>
-                    기준점 1: <strong>2.00 bar / 1.20 LPM</strong><br>
-                    기준점 2: <strong>3.00 bar / 1.50 LPM</strong></div>
-                    <p class="guide-note">목표 압력보다 낮은 값과 높은 값 중 가장 가까운 압력 두 개를 선택하고, 같은 노즐 번호 행의 유량을 입력하세요.</p>
-                    </div>""",
-                    unsafe_allow_html=True,
-                )
             points = reference_points(mode)
             st.button("조건 입력값 초기화", key="reset_conditions", width="stretch", on_click=reset_conditions)
 
