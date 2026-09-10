@@ -278,7 +278,8 @@ html,body,[class*="css"],[data-testid="stAppViewContainer"]{font-family:"Noto Sa
 .hero>div{position:relative;z-index:1}.eyebrow{color:#6ddcff;font-size:.72rem;font-weight:800;letter-spacing:.18em}.hero h1{margin:.45rem 0 .65rem;color:#fff;font-size:clamp(2rem,5vw,3.8rem);line-height:1.08;letter-spacing:-.05em}.hero p{margin:0;color:#d7edf6;font-size:1rem}
 .section-kicker{margin-top:2rem;color:#0072ae;font-size:.7rem;font-weight:800;letter-spacing:.16em}.section-title{margin:.2rem 0;color:var(--navy);font-size:clamp(1.45rem,3vw,2.1rem);font-weight:800}.section-copy{color:var(--muted);font-size:.88rem;margin-bottom:1rem}
 .menu-card{min-height:215px;padding:1.25rem;border:1px solid var(--line);border-top:4px solid var(--blue);background:#fff;box-shadow:0 13px 32px rgba(7,40,68,.075)}.menu-card.pending{border-top-color:#a8b6c0;background:#f8fafb}.menu-card .num{color:var(--blue);font-size:.7rem;font-weight:800;letter-spacing:.14em}.menu-card.pending .num{color:#8596a3}.menu-card h3{margin:.7rem 0 .5rem;color:var(--navy);font-size:1.16rem}.menu-card p{min-height:63px;color:var(--muted);font-size:.82rem;line-height:1.65}.pill{display:inline-block;padding:.28rem .58rem;border-radius:99px;background:#e1f5fc;color:#006d9e;font-size:.66rem;font-weight:800}.pending .pill{background:#e9eef1;color:#71818d}
-.page-title{position:relative;overflow:hidden;margin:.35rem 0 1rem;padding:1.4rem 1.6rem;border-left:5px solid var(--sky);background:linear-gradient(110deg,#061a2d,#093e64 74%,#0083b5);color:#fff;box-shadow:0 13px 32px rgba(7,40,68,.14)}.page-title:after{content:"";position:absolute;right:-170px;top:-225px;width:350px;height:350px;border:1px solid rgba(255,255,255,.28);border-radius:50%;box-shadow:0 0 0 45px rgba(255,255,255,.04),0 0 0 90px rgba(255,255,255,.025)}.page-title h1{margin:.28rem 0;font-size:clamp(1.65rem,3vw,2.45rem);letter-spacing:-.04em}.page-title p{margin:0;color:#cee5ef;font-size:.86rem}
+.calc-intro{display:flex;align-items:center;justify-content:space-between;gap:2rem;margin:.25rem 0 1.35rem;padding:1.35rem 1.5rem;border:1px solid #cbdde7;border-left:6px solid var(--blue);background:linear-gradient(120deg,#fff 0,#f3f9fc 66%,#e1f3fa 100%);box-shadow:0 10px 28px rgba(7,40,68,.07)}.calc-intro .calc-index{color:#0079b6;font-size:.68rem;font-weight:800;letter-spacing:.16em}.calc-intro h1{margin:.3rem 0 .35rem;color:var(--navy);font-size:clamp(1.65rem,3vw,2.25rem);letter-spacing:-.045em}.calc-intro p{margin:0;color:#587184;font-size:.84rem}.calc-formula{flex:0 0 auto;padding:.75rem 1rem;border-radius:4px;background:#072844;color:#fff;font:700 1rem/1.2 Georgia,serif;letter-spacing:.04em}
+.workspace-head{margin:.1rem 0 .75rem}.workspace-head span{display:block;color:#0085c8;font-size:.65rem;font-weight:800;letter-spacing:.15em}.workspace-head h2{margin:.12rem 0;color:var(--navy);font-size:1.2rem}.workspace-head p{margin:.15rem 0;color:var(--muted);font-size:.78rem}.subhead{margin:.45rem 0 .55rem;color:#153b55;font-size:.84rem;font-weight:800}.subhead:before{content:"";display:inline-block;width:4px;height:13px;margin-right:.45rem;vertical-align:-2px;background:var(--blue)}
 .panel-title{margin:.2rem 0 .7rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);color:var(--navy);font-size:.9rem;font-weight:800}.panel-title span{margin-right:.35rem;color:var(--blue)}
 .formula{padding:.9rem 1rem;border-left:4px solid var(--sky);background:#edf8fc;color:#284960;font-size:.81rem;line-height:1.75}.legal{margin-top:1.8rem;padding-top:.8rem;border-top:1px solid var(--line);color:#728695;font-size:.7rem;line-height:1.6}
 div[data-testid="stVerticalBlockBorderWrapper"]{border-color:var(--line)!important;border-radius:3px!important;background:rgba(255,255,255,.97);box-shadow:0 9px 25px rgba(7,40,68,.05)}
@@ -287,15 +288,16 @@ div[data-baseweb="radio"]{gap:.4rem}div[data-baseweb="radio"] label{padding:.45r
 [data-testid="stWidgetLabel"],[data-testid="stWidgetLabel"] *,[data-testid="stTextInput"] label *,[data-testid="stNumberInput"] label *,[data-testid="stSlider"] label *,[data-testid="stCheckbox"] label *{color:#294a61!important;-webkit-text-fill-color:#294a61!important;opacity:1!important}
 [data-testid="stTextInput"] div[data-baseweb="input"],[data-testid="stNumberInput"] div[data-baseweb="input"],[data-testid="stTextInput"] input,[data-testid="stNumberInput"] input{background:#242731!important;border-color:#242731!important}
 [data-testid="stTextInput"] input,[data-testid="stNumberInput"] input{color:#fff!important;-webkit-text-fill-color:#fff!important;caret-color:#fff!important;padding-right:.75rem!important}
+[data-testid="stTextInput"] input::placeholder{color:#b9c3cc!important;-webkit-text-fill-color:#b9c3cc!important;opacity:1!important}[data-testid="stTextInput"] input:focus::placeholder{color:transparent!important;-webkit-text-fill-color:transparent!important}
 [data-testid="stNumberInput"] button{display:none!important}
 .stButton>button,.stDownloadButton>button{min-height:42px;border-radius:2px;font-weight:750;color:#fff!important;-webkit-text-fill-color:#fff!important;background:#111827!important;border-color:#111827!important}.stButton>button *,.stDownloadButton>button *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{border-color:var(--blue)!important;background:var(--blue)!important}
-@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.page-title{padding:1.15rem .95rem}}
+@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}}
 </style>
 """
 
 DEFAULTS: dict[str, Any] = {
     "flow_mode": "일류체 노즐 (LPM)",
-    "product_name": "표준 노즐 - B201",
+    "product_name": "",
     "target_liquid_input": 5.0,
     "target_liquid_slider": 5.0,
     "target_air_input": 1.0,
@@ -315,8 +317,9 @@ def init_state() -> None:
     st.session_state.setdefault("page", "home")
 
 
-def reset_calculator() -> None:
-    for key in DEFAULTS:
+def reset_conditions() -> None:
+    condition_keys = [key for key in DEFAULTS if key.startswith("target_") or key.startswith("p1_") or key.startswith("p2_")]
+    for key in condition_keys:
         st.session_state.pop(key, None)
 
 
@@ -570,7 +573,7 @@ def build_pdf(product: str, mode: str, target_liquid: float, target_air: float,
 
 
 def targets(mode: str) -> tuple[float, float]:
-    st.markdown("<div class='panel-title'><span>01</span> 목표 운전 조건</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subhead'>목표 운전 조건</div>", unsafe_allow_html=True)
     a, b = st.columns([1, 2.1])
     with a:
         liquid = st.number_input("목표 액체 압력 (bar)", min_value=0.1, max_value=10.0, step=.01, format="%.2f", key="target_liquid_input", on_change=sync, args=("target_liquid_input", "target_liquid_slider"), **initial_widget_value("target_liquid_input"))
@@ -611,69 +614,73 @@ def reference_points(mode: str) -> list[dict[str, float | bool]]:
 
 def flow_calculator() -> None:
     header()
-    back, reset, _ = st.columns([1.1, 1, 4])
+    back, _ = st.columns([1.1, 5])
     with back:
-        st.button("← 계산기 선택", width="stretch", on_click=go, args=("home",))
-    with reset:
-        st.button("기본값 초기화", width="stretch", on_click=reset_calculator)
-    st.markdown("""<section class="page-title"><div class="eyebrow">CALCULATOR 01 · NOZZLE FLOW RATE</div><h1>노즐 분사량 계산기</h1><p>두 개의 데이터시트 기준점으로 목표 압력에서의 노즐 분사량을 예측합니다.</p></section>""", unsafe_allow_html=True)
-    mode_col, name_col = st.columns([1.35, 1])
-    with mode_col:
-        mode_options = ("일류체 노즐 (LPM)", "이류체 노즐 (L/H + Air)")
-        mode = st.radio("노즐 형식", mode_options, index=mode_options.index(str(DEFAULTS["flow_mode"])), horizontal=True, key="flow_mode")
-    with name_col:
-        product = st.text_input("노즐 / 제품명", key="product_name", **initial_widget_value("product_name"))
-    target_col, result_col = st.columns([1.05, 1.5], gap="large")
-    with target_col:
+        st.button("← 계산기 목록", width="stretch", on_click=go, args=("home",))
+    st.markdown("""<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 01</span><h1>노즐 분사량 계산기</h1><p>두 데이터시트 기준점의 평균 K값으로 목표 압력의 분사량을 계산합니다.</p></div><div class="calc-formula">Q = K√P</div></section>""", unsafe_allow_html=True)
+
+    input_col, output_col = st.columns([0.92, 1.38], gap="large")
+    with input_col:
+        st.markdown("<div class='workspace-head'><span>INPUT CONDITIONS</span><h2>입력 조건</h2><p>노즐 정보와 운전 조건을 순서대로 입력하세요.</p></div>", unsafe_allow_html=True)
         with st.container(border=True):
+            st.markdown("<div class='subhead'>노즐 기본 정보</div>", unsafe_allow_html=True)
+            mode_options = ("일류체 노즐 (LPM)", "이류체 노즐 (L/H + Air)")
+            mode = st.radio("노즐 형식", mode_options, index=mode_options.index(str(DEFAULTS["flow_mode"])), key="flow_mode")
+            product = st.text_input("노즐 / 제품명", placeholder="클릭하여 입력", key="product_name", **initial_widget_value("product_name"))
             target_liquid, target_air = targets(mode)
-    with result_col:
-        st.markdown("<div class='panel-title'><span>02</span> 예측 결과</div>", unsafe_allow_html=True)
-        metric_slots = st.columns(3)
-    inputs_col, chart_col = st.columns([1, 1.28], gap="large")
-    with inputs_col:
-        st.markdown("<div class='panel-title'><span>03</span> 데이터시트 기준점</div>", unsafe_allow_html=True)
-        st.caption("P1과 P2 두 기준점을 모두 적용하며, 두 K값의 평균으로 계산합니다.")
-        points = reference_points(mode)
+            st.markdown("<div class='subhead'>데이터시트 기준점</div>", unsafe_allow_html=True)
+            st.caption("P1과 P2를 모두 적용하여 두 K값의 평균으로 계산합니다.")
+            points = reference_points(mode)
+            st.button("조건 입력값 초기화", key="reset_conditions", width="stretch", on_click=reset_conditions)
+
     result = calculate(mode, target_liquid, target_air, points)
     unit = "L/H" if mode.startswith("이류체") else "LPM"
-    with result_col:
-        with metric_slots[0]:
-            st.metric("예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}")
-        with metric_slots[1]:
-            st.metric("예측 공기 소모량" if mode.startswith("이류체") else "적용 기준점", f"{result['air_flow']:.2f} NL/min" if mode.startswith("이류체") else f"{result['valid_count']} 개")
-        with metric_slots[2]:
-            st.metric("평균 유량 계수 K", f"{result['avg_k']:.3f}")
-        if result["valid_count"]:
-            st.success(f"{product or '노즐/제품'} · 기준점 {result['valid_count']}개 평균 적용")
-        else:
-            st.warning("두 기준점의 압력과 유량을 0보다 크게 입력하세요.")
-    with inputs_col:
-        st.markdown("**기준점별 계산 계수**")
-        kcols = st.columns(2)
-        for i, (col, point) in enumerate(zip(kcols, result["points"], strict=True), start=1):
-            with col:
-                st.metric(f"P{i} · K", f"{float(point['kl']):.3f}" if point["active"] else "비활성")
-    with chart_col:
-        st.markdown("<div class='panel-title'><span>04</span> 압력-유량 특성 곡선</div>", unsafe_allow_html=True)
-        st.vega_lite_chart(spec=chart_spec(mode, target_liquid, target_air, result), width="stretch")
-        st.caption("파란색은 평균 K 특성곡선, 초록색은 목표 운전점입니다.")
-    st.markdown("<div class='panel-title'><span>05</span> PDF 리포트</div>", unsafe_allow_html=True)
-    pdf_data = build_pdf(product, mode, target_liquid, target_air, result)
-    st.download_button("회사 로고 포함 PDF 리포트 다운로드", data=pdf_data, file_name="nozzle_flow_rate_report.pdf", mime="application/pdf", type="primary", width="stretch")
-    with st.expander("계산 방식 확인"):
-        if mode.startswith("일류체"):
-            st.markdown("<div class='formula'><b>일류체</b><br>① Kᵢ = Qᵢ ÷ √Pᵢ<br>② K̄ = 유효한 Kᵢ의 평균<br>③ Qₜ = K̄ × √Pₜ</div>", unsafe_allow_html=True)
-        else:
-            st.markdown("<div class='formula'><b>이류체</b><br>① F = max(0.15, 1 - 0.25 × Pₐ ÷ Pₗ)<br>② Kₗ = Qₗ ÷ (√Pₗ × F)<br>③ Qₗ,ₜ = K̄ₗ × √Pₗ,ₜ × Fₜ<br>④ Kₐ = Qₐ ÷ √Pₐ<br>⑤ Qₐ,ₜ = K̄ₐ × √Pₐ,ₜ</div>", unsafe_allow_html=True)
+
+    with output_col:
+        st.markdown("<div class='workspace-head'><span>CALCULATION OUTPUT</span><h2>계산 결과</h2><p>입력값이 바뀌면 결과와 그래프가 즉시 갱신됩니다.</p></div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            metric_slots = st.columns([1.25, 1, 1])
+            with metric_slots[0]:
+                st.metric("예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}")
+            with metric_slots[1]:
+                st.metric("예측 공기 소모량" if mode.startswith("이류체") else "적용 기준점", f"{result['air_flow']:.2f} NL/min" if mode.startswith("이류체") else f"{result['valid_count']} 개")
+            with metric_slots[2]:
+                st.metric("평균 유량 계수 K", f"{result['avg_k']:.3f}")
+            if result["valid_count"]:
+                st.success(f"{product or '제품명 미입력'} · 기준점 {result['valid_count']}개 평균 적용")
+            else:
+                st.warning("두 기준점의 압력과 유량을 0보다 크게 입력하세요.")
+            st.markdown("<div class='subhead'>기준점별 계산 계수</div>", unsafe_allow_html=True)
+            kcols = st.columns(2)
+            for i, (col, point) in enumerate(zip(kcols, result["points"], strict=True), start=1):
+                with col:
+                    st.metric(f"P{i} · K", f"{float(point['kl']):.3f}")
+
+        with st.container(border=True):
+            st.markdown("<div class='subhead'>압력-유량 특성 곡선</div>", unsafe_allow_html=True)
+            st.vega_lite_chart(spec=chart_spec(mode, target_liquid, target_air, result), width="stretch")
+            st.caption("파란색은 평균 K 특성곡선, 초록색은 목표 운전점입니다.")
+
+        with st.container(border=True):
+            st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
+            pdf_data = build_pdf(product, mode, target_liquid, target_air, result)
+            st.download_button("PDF 리포트 다운로드", data=pdf_data, file_name="nozzle_flow_rate_report.pdf", mime="application/pdf", type="primary", width="stretch")
+            with st.expander("계산 방식 확인"):
+                if mode.startswith("일류체"):
+                    st.markdown("<div class='formula'><b>일류체</b><br>① Kᵢ = Qᵢ ÷ √Pᵢ<br>② K̄ = 유효한 Kᵢ의 평균<br>③ Qₜ = K̄ × √Pₜ</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div class='formula'><b>이류체</b><br>① F = max(0.15, 1 - 0.25 × Pₐ ÷ Pₗ)<br>② Kₗ = Qₗ ÷ (√Pₗ × F)<br>③ Qₗ,ₜ = K̄ₗ × √Pₗ,ₜ × Fₜ<br>④ Kₐ = Qₐ ÷ √Pₐ<br>⑤ Qₐ,ₜ = K̄ₐ × √Pₐ,ₜ</div>", unsafe_allow_html=True)
     footer()
 
 
 def main() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
     init_state()
-    flow_calculator() if st.session_state.page == "flow" else home()
+    if st.session_state.page == "flow":
+        flow_calculator()
+    else:
+        home()
 
 
 if __name__ == "__main__":
-    main()
+    _ = main()
