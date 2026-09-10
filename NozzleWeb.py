@@ -156,7 +156,40 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
 [data-testid="stMetricLabel"] { color:#607487; }
 [data-testid="stMetricValue"] { color:var(--navy-900); }
 div[data-baseweb="radio"] { gap:.45rem; }
-div[data-baseweb="radio"] label { padding:.5rem .7rem; border:1px solid var(--line); background:#fff; }
+div[data-baseweb="radio"] label {
+  padding:.5rem .7rem;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink) !important;
+}
+div[data-baseweb="radio"] label *,
+[data-testid="stRadio"] label,
+[data-testid="stRadio"] label * {
+  color:var(--ink) !important;
+  -webkit-text-fill-color:var(--ink) !important;
+  opacity:1 !important;
+}
+[data-testid="stWidgetLabel"],
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] span,
+[data-testid="stTextInput"] label,
+[data-testid="stTextInput"] label p,
+[data-testid="stNumberInput"] label,
+[data-testid="stNumberInput"] label p,
+[data-testid="stSlider"] label,
+[data-testid="stSlider"] label p,
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] label p {
+  color:#29465d !important;
+  -webkit-text-fill-color:#29465d !important;
+  opacity:1 !important;
+}
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input {
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  caret-color:#ffffff !important;
+}
 .stButton > button { border-radius:2px; min-height:42px; font-weight:750; }
 .stButton > button[kind="primary"] { border-color:var(--blue-600); background:var(--blue-600); }
 .stButton > button[kind="primary"]:hover { background:#006fa9; border-color:#006fa9; }
