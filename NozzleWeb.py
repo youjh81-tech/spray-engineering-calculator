@@ -320,7 +320,7 @@ def init_state() -> None:
 def reset_conditions() -> None:
     condition_keys = [key for key in DEFAULTS if key.startswith("target_") or key.startswith("p1_") or key.startswith("p2_")]
     for key in condition_keys:
-        st.session_state.pop(key, None)
+        st.session_state[key] = 0.0
 
 
 def go(page: str) -> None:
@@ -576,9 +576,9 @@ def targets(mode: str) -> tuple[float, float]:
     st.markdown("<div class='subhead'>목표 운전 조건</div>", unsafe_allow_html=True)
     a, b = st.columns([1, 2.1])
     with a:
-        liquid = st.number_input("목표 액체 압력 (bar)", min_value=0.1, max_value=10.0, step=.01, format="%.2f", key="target_liquid_input", on_change=sync, args=("target_liquid_input", "target_liquid_slider"), **initial_widget_value("target_liquid_input"))
+        liquid = st.number_input("목표 액체 압력 (bar)", min_value=0.0, max_value=10.0, step=.01, format="%.2f", key="target_liquid_input", on_change=sync, args=("target_liquid_input", "target_liquid_slider"), **initial_widget_value("target_liquid_input"))
     with b:
-        st.slider("액체 압력 빠른 조정", 0.1, 10.0, step=.05, key="target_liquid_slider", on_change=sync, args=("target_liquid_slider", "target_liquid_input"), **initial_widget_value("target_liquid_slider"))
+        st.slider("액체 압력 빠른 조정", 0.0, 10.0, step=.05, key="target_liquid_slider", on_change=sync, args=("target_liquid_slider", "target_liquid_input"), **initial_widget_value("target_liquid_slider"))
     air = float(st.session_state.get("target_air_input", DEFAULTS["target_air_input"]))
     if mode.startswith("이류체"):
         a, b = st.columns([1, 2.1])
