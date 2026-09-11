@@ -657,6 +657,11 @@ div[data-baseweb="radio"]{gap:.4rem}div[data-baseweb="radio"] label{padding:.45r
 .stButton>button,.stDownloadButton>button{min-height:42px;border-radius:2px;font-weight:750;color:#fff!important;-webkit-text-fill-color:#fff!important;background:#111827!important;border-color:#111827!important}.stButton>button *,.stDownloadButton>button *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{border-color:var(--blue)!important;background:var(--blue)!important}
 @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}.reference-guide{padding:.65rem}.catalog-table-head{align-items:flex-start;padding:.7rem}.catalog-table-head em{display:none}.guide-copy{grid-template-columns:1fr 1fr}.workspace-head span{font-size:.74rem}.workspace-head h2{font-size:1.32rem}.workspace-head p{font-size:.84rem}}
 @media(max-width:720px){.workspace-head span{font-size:.84rem}.workspace-head h2{font-size:1.48rem}.workspace-head p{font-size:.9rem}}
+.coefficient-note{font-size:.82rem!important;line-height:1.5;color:#405b70!important;padding:4px 8px;background:#edf3f7;border-radius:4px}.coefficient-note b{font-size:.87rem!important;color:#173c57!important}
+[data-testid="stMetric"]{background:#e0f2fb!important;border-radius:6px;padding:12px 15px!important;min-height:90px!important}
+[data-testid="stMetricValue"],[data-testid="stMetricValue"] *{font-weight:800!important;color:#073453!important;-webkit-text-fill-color:#073453!important}
+[data-testid="stAlert"] p,[data-testid="stAlert"] li,[data-testid="stAlert"] span{color:#263b4b!important;-webkit-text-fill-color:#263b4b!important;opacity:1!important;font-weight:600!important}
+[data-testid="stAlert"]{background:#fff3ce!important;border:1px solid #dec16d!important}
 </style>
 """
 
@@ -689,7 +694,7 @@ def init_state() -> None:
     st.session_state.setdefault("page", "home")
     for key, mapping in {
         "target_basis": {"액체 압력 기준": "압력 기준", "액체 유량 기준": "유량 기준"},
-        "flow_mode": {"일류체 노즐 (LPM)": "일류체 노즐 (액체)", "이류체 노즐 (L/H + Air)": "이류체 노즐 (액체 + 에어)"},
+        "flow_mode": {"이류체 노즐 (액체 + 에어)": "외부혼합 이류체 노즐 (액체 + 에어)", "일류체 노즐 (LPM)": "일류체 노즐 (액체)", "이류체 노즐 (L/H + Air)": "외부혼합 이류체 노즐 (액체 + 에어)"},
     }.items():
         if st.session_state.get(key) in mapping:
             st.session_state[key] = mapping[st.session_state[key]]
@@ -787,7 +792,7 @@ def calculate(mode: str, target_basis: str, target_value: float, target_air: flo
               points: list[dict[str, float | bool]], diameter: float = 1.0,
               temperature: float = 20.0) -> dict[str, Any]:
     liquid_ks, air_cs, calculated = [], [], []
-    dual = mode.startswith("이류체")
+    dual = ("이류체" in mode)
     for point in points:
         pl, ql, pa, qa = (float(point[k]) for k in ("pl", "ql", "pa", "qa"))
         active = bool(point["active"])
@@ -843,7 +848,7 @@ def chart_spec(mode: str, target_air: float, result: dict[str, Any], air: bool =
             for i, p in enumerate(result["points"], start=1)
             if bool(p["active"]) and float(p["pl"]) > 0 and float(p["ql"]) > 0]
     target = [{"pressure": target_pressure, "flow": float(result["liquid_flow"]), "label": "목표점"}]
-    unit = "NL/min" if air else ("L/H" if mode.startswith("이류체") else "LPM")
+    unit = "NL/min" if air else ("L/H" if ("이류체" in mode) else "LPM")
     return {"height": 350, "background": "#fff", "config": {"view": {"stroke": "#d6e2e9"},
             "axis": {"labelColor": "#577084", "titleColor": "#14364e", "gridColor": "#dce7ed"}}, "layer": [
         {"data": {"values": curve}, "mark": {"type": "line", "color": "#0085c8", "strokeWidth": 3},
@@ -865,7 +870,7 @@ def pdf_curve_drawing(mode: str, target_air: float, result: dict[str, Any], air:
     from reportlab.graphics.shapes import Circle, Drawing, Line, Path, String
     from reportlab.lib.colors import HexColor
 
-    width, height = 500, (185 if mode.startswith("이류체") else 215)
+    width, height = 500, (185 if ("이류체" in mode) else 215)
     left, right, bottom, top = 52, 18, 36, 22
     if air:
         result = air_chart_result(result)
@@ -903,7 +908,7 @@ def pdf_curve_drawing(mode: str, target_air: float, result: dict[str, Any], air:
             drawing.add(String(x(float(point["pl"])), y(float(point["ql"])) + 7, f"P{index}", fontName="Helvetica-Bold", fontSize=7, fillColor=ink, textAnchor="middle"))
     drawing.add(Line(x(target_pressure), bottom, x(target_pressure), y(float(result["liquid_flow"])), strokeColor=green, strokeWidth=1, strokeDashArray=[4, 3]))
     drawing.add(Circle(x(target_pressure), y(float(result["liquid_flow"])), 5, fillColor=green, strokeColor=None))
-    unit = "NL/min" if air else ("L/H" if mode.startswith("이류체") else "LPM")
+    unit = "NL/min" if air else ("L/H" if ("이류체" in mode) else "LPM")
     drawing.add(String(width / 2, 8, "Air Pressure (bar)" if air else "Liquid Pressure (bar)", fontName="Helvetica-Bold", fontSize=8, fillColor=ink, textAnchor="middle"))
     drawing.add(String(left, height - 10, f"Flow Rate ({unit})", fontName="Helvetica-Bold", fontSize=8, fillColor=ink))
     return drawing
@@ -946,21 +951,21 @@ def build_pdf(product: str, mode: str, target_basis: str, target_value: float, t
                               ("GRID", (0, 0), (-1, -1), .5, colors.HexColor("#C9D8E1")), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                               ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
     story.append(info)
-    unit = "L/H" if mode.startswith("이류체") else "LPM"
+    unit = "L/H" if ("이류체" in mode) else "LPM"
     result_rows = [["항목", "결과"], ["계산 기준", target_basis]]
     if target_basis == "유량 기준":
         result_rows.extend([["목표 액체 유량", f"{target_value:.2f} {unit}"],
-                            ["예측 필요 액체 압력", f"{result['target_pressure']:.2f} bar"]])
+                            ["예측 액체 압력", f"{result['target_pressure']:.2f} bar"]])
     else:
         result_rows.extend([["목표 액체 압력", f"{target_value:.2f} bar"],
                             ["예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}"]])
     result_rows.append(["평균 유량 계수 K", f"{result['avg_k']:.3f}"])
-    if mode.startswith("이류체"):
+    if ("이류체" in mode):
         result_rows.extend([["공기 노즐 구경 / 온도", f"{result['diameter']:.2f} mm / {result['temperature']:.2f} °C"],
                             ["평균 공기 유량 계수 C", f"{result['avg_c']:.4f}"]])
         if target_basis == "유량 기준":
             result_rows.extend([["목표 공기 유량", f"{target_air:.2f} NL/min"],
-                                ["예측 필요 공기 압력", "계산 범위 확인" if result["air_error"] else f"{result['air_pressure']:.2f} bar"]])
+                                ["예측 공기 압력", "계산 범위 확인" if result["air_error"] else f"{result['air_pressure']:.2f} bar"]])
         else:
             result_rows.extend([["목표 공기 압력", f"{target_air:.2f} bar"],
                                 ["예측 공기 유량", f"{result['air_flow']:.2f} NL/min"]])
@@ -970,16 +975,24 @@ def build_pdf(product: str, mode: str, target_basis: str, target_value: float, t
                                        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#072844")), ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
                                        ("TEXTCOLOR", (0, 1), (-1, -1), colors.HexColor("#183A52")), ("GRID", (0, 0), (-1, -1), .5, colors.HexColor("#C9D8E1")),
                                        ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
+    for row_index, (label, _) in enumerate(result_rows):
+        if label.startswith(("예측", "목표")):
+            results_table.setStyle(TableStyle([
+                ("BACKGROUND", (0, row_index), (-1, row_index), colors.HexColor("#DCF1FA")),
+                ("TEXTCOLOR", (0, row_index), (-1, row_index), colors.HexColor("#073453")),
+                ("FONTSIZE", (1, row_index), (1, row_index), 12),
+                ("FONTNAME", (1, row_index), (1, row_index), "Helvetica-Bold")
+            ]))
     story.append(results_table)
-    if mode.startswith("이류체"):
+    if ("이류체" in mode):
         story.append(Paragraph("공기는 첨부 식의 밀도 1.2 kg/m³ 기준 유량입니다. 압력은 게이지압이며, 내부 계산은 kgf/cm² 절대압력으로 변환합니다.", normal))
         story.extend([PageBreak(), deepcopy(head), Spacer(1, 9)])
     story.append(Paragraph("3. 액체 압력-유량 특성 곡선", section))
     story.append(pdf_curve_drawing(mode, target_air, result))
-    if mode.startswith("이류체"):
+    if ("이류체" in mode):
         story.append(Paragraph("4. 공기 압력-유량 특성 곡선", section))
         story.append(pdf_curve_drawing(mode, target_air, result, air=True))
-    story.append(Paragraph("5. 액체 기준점" if mode.startswith("이류체") else "4. 기준점", section))
+    story.append(Paragraph("5. 액체 기준점" if ("이류체" in mode) else "4. 기준점", section))
     point_rows = [["기준점", "액체 압력 (bar)", f"액체 유량 ({unit})", "K"]]
     for index, point in enumerate(result["points"], start=1):
         point_rows.append([f"P{index}", f"{float(point['pl']):.2f}", f"{float(point['ql']):.2f}", f"{float(point['kl']):.3f}"])
@@ -989,7 +1002,7 @@ def build_pdf(product: str, mode: str, target_basis: str, target_value: float, t
                                      ("GRID", (0, 0), (-1, -1), .5, colors.HexColor("#C9D8E1")), ("ALIGN", (1, 1), (-1, -1), "CENTER"),
                                      ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5)]))
     story.append(point_table)
-    if mode.startswith("이류체"):
+    if ("이류체" in mode):
         story.append(Paragraph("6. 공기 기준점", section))
         air_rows = [["기준점", "공기 압력 (bar)", "공기 유량 (NL/min)", "C"]]
         for index, point in enumerate(result["points"], start=1):
@@ -1029,7 +1042,7 @@ def targets(mode: str) -> tuple[str, float, float]:
     )
     a, b = st.columns([1, 2.1])
     if target_basis == "유량 기준":
-        unit = "L/H" if mode.startswith("이류체") else "LPM"
+        unit = "L/H" if ("이류체" in mode) else "LPM"
         with a:
             target_value = st.number_input(f"목표 액체 유량 ({unit})", min_value=0.0, max_value=1000.0, step=.01, format="%.2f", key="target_flow_input", on_change=sync, args=("target_flow_input", "target_flow_slider"), **initial_widget_value("target_flow_input"))
         with b:
@@ -1040,7 +1053,7 @@ def targets(mode: str) -> tuple[str, float, float]:
         with b:
             st.slider("액체 압력 빠른 조정", 0.0, 10.0, step=.05, key="target_liquid_slider", on_change=sync, args=("target_liquid_slider", "target_liquid_input"), **initial_widget_value("target_liquid_slider"))
     air = float(st.session_state.get("target_air_input", DEFAULTS["target_air_input"]))
-    if mode.startswith("이류체"):
+    if ("이류체" in mode):
         a, b = st.columns([1, 2.1])
         if target_basis == "유량 기준":
             with a:
@@ -1064,11 +1077,11 @@ def reference_points(mode: str) -> list[dict[str, float | bool]]:
             with cols[0]:
                 pl = st.number_input(f"액체 압력 P{index} (bar)", min_value=0.0, max_value=100.0, step=.01, format="%.2f", key=f"p{index}_liquid_pressure", **initial_widget_value(f"p{index}_liquid_pressure"))
             with cols[1]:
-                unit = "L/H" if mode.startswith("이류체") else "LPM"
+                unit = "L/H" if ("이류체" in mode) else "LPM"
                 ql = st.number_input(f"액체 유량 Q{index} ({unit})", min_value=0.0, max_value=100000.0, step=.01, format="%.2f", key=f"p{index}_liquid_flow", **initial_widget_value(f"p{index}_liquid_flow"))
             pa = float(st.session_state.get(f"p{index}_air_pressure", DEFAULTS[f"p{index}_air_pressure"]))
             qa = float(st.session_state.get(f"p{index}_air_flow", DEFAULTS[f"p{index}_air_flow"]))
-            if mode.startswith("이류체"):
+            if ("이류체" in mode):
                 cols = st.columns(2)
                 with cols[0]:
                     pa = st.number_input(f"공기 압력 Air{index} (bar)", min_value=0.0, max_value=100.0, step=.01, format="%.2f", key=f"p{index}_air_pressure", **initial_widget_value(f"p{index}_air_pressure"))
@@ -1083,7 +1096,7 @@ def flow_calculator() -> None:
     back, _ = st.columns([1.1, 5])
     with back:
         st.button("← 계산기 목록", width="stretch", on_click=go, args=("home",))
-    st.markdown("""<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 01</span><h1>노즐 분사량 계산기</h1><p>두 데이터시트 기준점의 평균 K값으로 목표 압력 또는 목표 유량을 계산합니다.</p></div><div class="calc-formula">Q = K√P</div></section>""", unsafe_allow_html=True)
+    st.markdown("""<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 01</span><h1>노즐 분사량 계산기</h1><p>두 데이터시트 기준점의 평균 K값으로 목표 압력 또는 목표 유량을 계산합니다.</p></div></section>""", unsafe_allow_html=True)
 
     with st.expander("기준점 입력 방법", expanded=True):
         st.markdown(
@@ -1132,11 +1145,11 @@ def flow_calculator() -> None:
         st.markdown("<div class='workspace-head'><span>INPUT CONDITIONS</span><h2>입력 조건</h2><p>노즐 정보와 운전 조건을 순서대로 입력하세요.</p></div>", unsafe_allow_html=True)
         with st.container(border=True):
             st.markdown("<div class='subhead'>노즐 기본 정보</div>", unsafe_allow_html=True)
-            mode_options = ("일류체 노즐 (액체)", "이류체 노즐 (액체 + 에어)")
+            mode_options = ("일류체 노즐 (액체)", "외부혼합 이류체 노즐 (액체 + 에어)")
             mode = st.radio("노즐 형식", mode_options, index=mode_options.index(str(DEFAULTS["flow_mode"])), key="flow_mode")
             product = st.text_input("노즐 / 제품명", placeholder="클릭하여 입력", key="product_name", **initial_widget_value("product_name"))
             diameter, temperature = 1.0, 20.0
-            if mode.startswith("이류체"):
+            if ("이류체" in mode):
                 dcol, tcol = st.columns(2)
                 with dcol:
                     diameter = st.number_input("공기 노즐 구경 D (mm)", min_value=.01, max_value=100.0, step=.01, format="%.2f", key="air_diameter", **initial_widget_value("air_diameter"))
@@ -1146,39 +1159,35 @@ def flow_calculator() -> None:
                 st.caption("공기 유량은 첨부 식의 밀도 1.2 kg/m³ 기준입니다. 카탈로그의 기준 상태가 다르면 환산 후 입력하세요. 압력은 게이지압입니다.")
             target_basis, target_value, target_air = targets(mode)
             st.markdown("<div class='subhead'>데이터시트 기준점</div>", unsafe_allow_html=True)
-            st.caption("두 기준점에서 액체 K와 공기 C를 각각 구해 평균을 적용합니다." if mode.startswith("이류체") else "P1과 P2의 유효한 K값 평균으로 계산합니다.")
+            st.caption("두 기준점에서 액체 K와 공기 C를 각각 구해 평균을 적용합니다." if ("이류체" in mode) else "P1과 P2의 유효한 K값 평균으로 계산합니다.")
             points = reference_points(mode)
             st.button("조건 입력값 초기화", key="reset_conditions", width="stretch", on_click=reset_conditions)
 
     result = calculate(mode, target_basis, target_value, target_air, points, diameter, temperature)
-    unit = "L/H" if mode.startswith("이류체") else "LPM"
+    unit = "L/H" if ("이류체" in mode) else "LPM"
 
     with output_col:
         st.markdown("<div class='workspace-head'><span>CALCULATION OUTPUT</span><h2>계산 결과</h2><p>입력값이 바뀌면 결과와 그래프가 즉시 갱신됩니다.</p></div>", unsafe_allow_html=True)
         with st.container(border=True):
-            metric_slots = st.columns(2 if mode.startswith("이류체") else [1.25, 1, 1])
+            metric_slots = st.columns(2 if ("이류체" in mode) else [1.25, 1, 1])
             with metric_slots[0]:
                 if target_basis == "유량 기준":
-                    st.metric("예측 필요 액체 압력", f"{result['target_pressure']:.2f} bar")
+                    st.metric("예측 액체 압력", f"{result['target_pressure']:.2f} bar")
                 else:
                     st.metric("예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}")
             with metric_slots[1]:
-                if mode.startswith("이류체"):
+                if ("이류체" in mode):
                     if target_basis == "유량 기준":
-                        st.metric("예측 필요 공기 압력", "—" if result["air_error"] or not result["air_valid_count"] else f"{result['air_pressure']:.2f} bar")
+                        st.metric("예측 공기 압력", "—" if result["air_error"] or not result["air_valid_count"] else f"{result['air_pressure']:.2f} bar")
                     else:
                         st.metric("예측 공기 유량", f"{result['air_flow']:.2f} NL/min")
                 else:
                     st.metric("적용 기준점", f"{result['valid_count']} 개")
-            if not mode.startswith("이류체"):
+            if not ("이류체" in mode):
                 with metric_slots[2]:
                     st.metric("평균 유량 계수 K", f"{result['avg_k']:.3f}")
-            if mode.startswith("이류체"):
-                k_slot, c_slot = st.columns(2)
-                with k_slot:
-                    st.metric("평균 액체 유량 계수 K", f"{result['avg_k']:.3f}")
-                with c_slot:
-                    st.metric("평균 공기 유량 계수 C", f"{result['avg_c']:.4f}")
+            if ("이류체" in mode):
+                st.markdown(f"<div class='coefficient-note'>평균 액체 계수 K <b>{result['avg_k']:.3f}</b> &nbsp; · &nbsp; 평균 공기 계수 C <b>{result['avg_c']:.4f}</b></div>", unsafe_allow_html=True)
                 if not result["air_valid_count"]:
                     st.warning("공기 기준점의 압력과 유량을 0보다 크게 입력하세요.")
                 if result["air_error"]:
@@ -1191,15 +1200,15 @@ def flow_calculator() -> None:
             kcols = st.columns(2)
             for i, (col, point) in enumerate(zip(kcols, result["points"], strict=True), start=1):
                 with col:
-                    st.metric(f"P{i} · K", f"{float(point['kl']):.3f}")
-                    if mode.startswith("이류체"):
-                        st.metric(f"P{i} · C", f"{float(point['c']):.4f}")
+                    st.markdown(f"<div class='coefficient-note'>P{i} · K <b>{float(point['kl']):.3f}</b></div>", unsafe_allow_html=True)
+                    if ("이류체" in mode):
+                        st.markdown(f"<div class='coefficient-note'>P{i} · C <b>{float(point['c']):.4f}</b></div>", unsafe_allow_html=True)
 
         with st.container(border=True):
             st.markdown("<div class='subhead'>액체 압력-유량 특성 곡선</div>", unsafe_allow_html=True)
             st.vega_lite_chart(spec=chart_spec(mode, target_air, result), width="stretch")
             st.caption("파란색은 평균 K 특성곡선, 초록색은 목표 운전점입니다.")
-            if mode.startswith("이류체") and result["air_valid_count"] and not result["air_error"]:
+            if ("이류체" in mode) and result["air_valid_count"] and not result["air_error"]:
                 st.markdown("<div class='subhead'>공기 압력-유량 특성 곡선</div>", unsafe_allow_html=True)
                 st.vega_lite_chart(spec=chart_spec(mode, target_air, result, air=True), width="stretch")
                 st.caption("파란색은 평균 C 특성곡선, 초록색은 목표 공기 운전점입니다.")
@@ -1207,7 +1216,7 @@ def flow_calculator() -> None:
         with st.container(border=True):
             st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
             pdf_data = build_pdf(product, mode, target_basis, target_value, target_air, result)
-            st.download_button("PDF 리포트 다운로드", disabled=bool(result["air_error"]) or result["valid_count"] == 0 or (mode.startswith("이류체") and result["air_valid_count"] == 0), data=pdf_data, file_name="nozzle_flow_rate_report.pdf", mime="application/pdf", type="primary", width="stretch")
+            st.download_button("PDF 리포트 다운로드", disabled=bool(result["air_error"]) or result["valid_count"] == 0 or (("이류체" in mode) and result["air_valid_count"] == 0), data=pdf_data, file_name="nozzle_flow_rate_report.pdf", mime="application/pdf", type="primary", width="stretch")
             with st.expander("계산 방식 확인"):
                 if mode.startswith("일류체"):
                     st.markdown("<div class='formula'><b>일류체</b><br>① Kᵢ = Qᵢ ÷ √Pᵢ<br>② K̄ = 유효한 Kᵢ의 평균<br>③ 압력 기준: Qₜ = K̄ × √Pₜ<br>④ 유량 기준: Pₜ = (Qₜ ÷ K̄)²</div>", unsafe_allow_html=True)
