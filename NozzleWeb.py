@@ -735,6 +735,8 @@ def footer() -> None:
         """<div class="legal">본 계산기는 현장 검토를 돕기 위한 독립적인 계산 도구입니다. 실제 노즐 선정과 운전 조건은 제조사 데이터시트 및 기술 담당자의 검토 결과를 우선 적용하십시오. Spraying Systems Co. 로고는 사용자 요청에 따라 공식 홈페이지 연결 및 리포트 식별 영역에 표시됩니다.</div>""",
         unsafe_allow_html=True,
     )
+    st.markdown('<div style="margin-top:18px;padding:14px 0;border-top:1px solid #cbdde7;color:#294a61;text-align:center;font-size:13px">Powered by Spraying Systems Korea 기술영업부 유재환 수석 <strong><a style="color:#0079b6" href="mailto:jhyou@spray.co.kr">jhyou@spray.co.kr</a></strong></div>', unsafe_allow_html=True)
+
 
 
 # The supplied formula uses kgf/cm² absolute, mm² and t + 273.
@@ -1213,8 +1215,8 @@ CALCULATOR_CARDS = [
 
 # mode: (field key, label including unit, workbook default, minimum)
 CALC_FIELDS = {
-    "AIR · 배관 내경": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 대기압 기준)", 1000., 0.), ("v", "배관 내 유속 (m/s)", 20., 0.)],
-    "AIR · 배관 유속": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 대기압 기준)", 1000., 0.), ("d", "배관 내경 (mm)", 16.5, 0.)],
+    "AIR · 배관 내경": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 운전 게이지압 기준)", 1000., 0.), ("v", "배관 내 유속 (m/s)", 20., 0.)],
+    "AIR · 배관 유속": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 운전 게이지압 기준)", 1000., 0.), ("d", "배관 내경 (mm)", 16.5, 0.)],
     "WATER · 배관 내경": [("q", "물 유량 (L/min)", 45., 0.), ("v", "배관 내 유속 (m/s)", 3., 0.)],
     "WATER · 배관 유속": [("q", "물 유량 (L/min)", 190., 0.), ("d", "배관 내경 (mm)", 51.9, 0.)],
     "WATER · 유량": [("d", "배관 내경 (mm)", 19., 0.), ("v", "배관 내 유속 (m/s)", 3., 0.)],
@@ -1275,7 +1277,9 @@ def engineering_result(page: str, mode: str, a: dict[str, Any]) -> dict[str, Any
     formula: list[str] = []
     note = ""
     if page == "pipe":
-        ratio = (a.get("p", 0.) + 1.033) / 1.033 if mode.startswith("AIR") else 1.
+        # AIR Q is already the actual volume at the stated operating pressure.
+        # Do not compress it a second time. WATER retains its original R=1.
+        ratio = 1.
         if mode.endswith("배관 내경"):
             v = positive("v", "유속")
             d = math.sqrt(a['q'] * 1000 / v / 60 / ratio * 4 / 3.14)
@@ -1298,8 +1302,9 @@ def engineering_result(page: str, mode: str, a: dict[str, Any]) -> dict[str, Any
             formula = [r"\Delta P=\frac{6.174\times Q^{1.85}\times10^5\times L_{total}}{C^{1.85}\times D^{4.87}}", r"L_{total}=L+L_{thread}+L_{weld}+L_{valve}"]
             note = "직관 길이에 나사식·용접식 부속과 밸브의 등가길이를 더합니다. 원본 표의 C 기본값은 120입니다."
         if mode.startswith("AIR"):
-            formula.append(r"R=(P+1.033)/1.033")
-            note = "첨부 AIR 배관 원식의 압력 보정 R을 그대로 적용합니다. 유량은 대기압 기준이며 배관 내 실제 체적유량은 Q/R입니다."
+            metrics[1] = ("배관 내 통과 유량", a['q'], "L/min")
+            formula.append(r"R=1,\quad Q_{pipe}=Q_{input},\quad Q=Av")
+            note = "입력 유량은 표시된 운전 게이지압에서의 실제 체적유량입니다. 압력비로 다시 나누지 않습니다. 같은 실제 유량·내경에서는 유속이 같으며, 압력은 운전 조건으로 기록합니다."
         elif "압력손실" not in mode:
             formula.append(r"R=1\quad(\mathrm{WATER})")
     elif page == "air":
@@ -1375,10 +1380,15 @@ def engineering_result(page: str, mode: str, a: dict[str, Any]) -> dict[str, Any
     return {'metrics': metrics, 'formula': formula, 'note': note}
 
 
+def engineering_curve_key(page: str, mode: str) -> str:
+    if page == 'air': return 'p'
+    if mode.startswith('AIR ·') or mode == 'WATER · 압력손실': return 'q'
+    return CALC_FIELDS[mode][0][0]
+
+
 def engineering_curve(page: str, mode: str, values: dict[str, Any]) -> tuple[str, list[dict[str, float]]]:
     """Vary a genuine input; calculate each point through the same validated engine."""
-    key = 'p' if page == 'air' else CALC_FIELDS[mode][0][0]
-    if mode == 'WATER · 압력손실': key = 'q'
+    key = engineering_curve_key(page, mode)
     upper = max(float(values[key])*2, 1.)
     rows = []
     for n in range(1, 51):
@@ -1397,14 +1407,61 @@ def reset_engineering(prefix: str) -> None:
             del st.session_state[key]
 
 
-def engineering_pdf(title: str, mode: str, inputs: list[tuple[str, str]], result: dict[str, Any], source: str) -> bytes:
+def engineering_table(rows: list[dict[str, Any]]) -> None:
+    """A scoped light HTML table remains readable even under Streamlit dark mode."""
+    from html import escape
+    import re
+    def display(value: Any) -> str:
+        if value is None: return '—'
+        if isinstance(value, (float, int)): return f'{value:,.2f}'
+        text = str(value)
+        if re.fullmatch(r'\d+(\.\d+)?(~\d+(\.\d+)?)?', text):
+            return '~'.join(f'{float(v):,.2f}' for v in text.split('~'))
+        return text
+    columns = list(rows[0]) if rows else []
+    head = ''.join('<th>'+escape(c)+'</th>' for c in columns)
+    body = ''.join('<tr>'+''.join('<td>'+escape(display(row.get(c)))+'</td>' for c in columns)+'</tr>' for row in rows)
+    st.markdown('<div class="engineering-table-wrap"><table class="engineering-table"><thead><tr>'+head+'</tr></thead><tbody>'+body+'</tbody></table></div>', unsafe_allow_html=True)
+
+
+def engineering_pdf_curve(page: str, mode: str, values: dict[str, Any], result: dict[str, Any]) -> Any:
+    from reportlab.graphics.shapes import Circle, Drawing, Line, Path, Rect, String
+    from reportlab.lib.colors import HexColor
+    xlabel, rows = engineering_curve(page, mode, values)
+    current_x = values[engineering_curve_key(page, mode)]
+    label, current_y, unit = result['metrics'][0]
+    width, height = 507, 238
+    left, right, bottom, top = 72, 15, 44, 30
+    max_x = max([current_x, 1.] + [r['x'] for r in rows])
+    max_y = max([current_y, 1.] + [r['y'] for r in rows])*1.08
+    x = lambda v: left+v/max_x*(width-left-right)
+    y = lambda v: bottom+v/max_y*(height-bottom-top)
+    drawing = Drawing(width, height)
+    drawing.add(Rect(0,0,width,height,fillColor=HexColor('#ffffff'),strokeColor=None))
+    for i in range(6):
+        px, py = max_x*i/5, max_y*i/5
+        drawing.add(Line(x(px),bottom,x(px),height-top,strokeColor=HexColor('#dce7ed'),strokeWidth=.6))
+        drawing.add(Line(left,y(py),width-right,y(py),strokeColor=HexColor('#dce7ed'),strokeWidth=.6))
+        drawing.add(String(x(px),bottom-14,f'{px:,.2f}',fontName='Helvetica',fontSize=7,fillColor=HexColor('#577084'),textAnchor='middle'))
+        drawing.add(String(left-6,y(py)-2,f'{py:,.2f}',fontName='Helvetica',fontSize=7,fillColor=HexColor('#577084'),textAnchor='end'))
+    curve = Path(strokeColor=HexColor('#0085c8'),strokeWidth=2.4,fillColor=None)
+    for i,row in enumerate(rows): (curve.moveTo if i==0 else curve.lineTo)(x(row['x']),y(row['y']))
+    drawing.add(curve)
+    drawing.add(Line(x(current_x),bottom,x(current_x),y(current_y),strokeColor=HexColor('#0a9b73'),strokeDashArray=[4,3]))
+    drawing.add(Circle(x(current_x),y(current_y),4,fillColor=HexColor('#0a9b73'),strokeColor=None))
+    drawing.add(String(width/2,10,xlabel,fontName='HYSMyeongJo-Medium',fontSize=8,fillColor=HexColor('#14364e'),textAnchor='middle'))
+    drawing.add(String(left,height-13,f'{label} ({unit})',fontName='HYSMyeongJo-Medium',fontSize=9,fillColor=HexColor('#14364e')))
+    return drawing
+
+
+def engineering_pdf(title: str, mode: str, inputs: list[tuple[str, str]], result: dict[str, Any], source: str, page: str, values: dict[str, Any]) -> bytes:
     from html import escape
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-    from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+    from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle, KeepTogether
     font = 'HYSMyeongJo-Medium'
     pdfmetrics.registerFont(UnicodeCIDFont(font))
     normal = ParagraphStyle('NormalKR', fontName=font, fontSize=10, leading=16, textColor=colors.HexColor('#294a61'))
@@ -1415,17 +1472,27 @@ def engineering_pdf(title: str, mode: str, inputs: list[tuple[str, str]], result
     logo = Image(BytesIO(base64.b64decode(LOGO_PNG_BASE64)), width=220, height=43.4); logo.hAlign='LEFT'
     story = [logo, Spacer(1, 18), Paragraph(escape(title), heading), Paragraph(escape(mode), normal),
              Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), small), Spacer(1, 12)]
-    for section, rows in [('입력 조건', inputs), ('계산 결과', [(label, f'{value:,.4f} {unit}') for label, value, unit in result['metrics']])]:
+    for section, rows in [('입력 조건', inputs), ('계산 결과', [(label, f'{value:,.2f} {unit}') for label, value, unit in result['metrics']])]:
         story.extend([Paragraph(section, normal), Spacer(1, 6)])
         table = Table([[Paragraph(escape(str(k)), normal), Paragraph(escape(str(v)), normal)] for k, v in rows], colWidths=[270, 237])
         table.setStyle(TableStyle([('BACKGROUND',(0,0),(0,-1),colors.HexColor('#e0f2fb')), ('GRID',(0,0),(-1,-1),.4,colors.HexColor('#cbdde7')), ('VALIGN',(0,0),(-1,-1),'TOP'), ('TOPPADDING',(0,0),(-1,-1),7), ('BOTTOMPADDING',(0,0),(-1,-1),7)]))
         story.extend([table, Spacer(1, 12)])
-    story.extend([Paragraph(escape(result['note']), small), Spacer(1, 8), Paragraph('계산식 출처: '+escape(source), small)])
+    story.append(KeepTogether([Paragraph('입력 조건에 따른 변화', normal), Spacer(1,6), engineering_pdf_curve(page, mode, values, result), Paragraph('파란색: 계산 곡선 · 초록색: 현재 입력 조건', small)]))
+    story.extend([Spacer(1,8), Paragraph(escape(result['note']), small), Spacer(1, 8), Paragraph('계산식 출처: '+escape(source), small)])
     doc.build(story)
     return buf.getvalue()
 
 
 def engineering_calculator(page: str) -> None:
+    st.markdown("""<style>
+.engineering-table-wrap{overflow:auto;max-height:540px;border:1px solid #cbdde7;border-radius:4px;margin:12px 0;background:#fff;color-scheme:light}
+.engineering-table{width:100%;border-collapse:collapse;background:#fff!important;color:#18394f!important;font-size:14px}
+.engineering-table th,.engineering-table td{padding:10px 12px;border:1px solid #d6e2e9!important;white-space:nowrap;color:#18394f!important;-webkit-text-fill-color:#18394f!important}
+.engineering-table th{background:#dceff7!important;font-weight:700;position:sticky;top:0}
+.engineering-table td{background:#fff!important;text-align:right}
+.engineering-table td:first-child{text-align:left;font-weight:600}
+.engineering-table tr:nth-child(even) td{background:#f3f9fc!important}
+</style>""", unsafe_allow_html=True)
     index = next(i for i, c in enumerate(CALCULATOR_CARDS, 1) if c[0] == page)
     _, title, description = CALCULATOR_CARDS[index-1]
     header()
@@ -1449,15 +1516,15 @@ def engineering_calculator(page: str) -> None:
             for key, label, default, minimum in CALC_FIELDS[mode]:
                 if key == 'p' and page == 'air': label = f'공기 압력 ({values["pressure_unit"]} · 게이지압)'
                 if key == 'q' and mode == '비중에 따른 유량 보정': label = ('액체 유량' if direction == '액체 → 물' else '물 기준 유량') + ' (L/min)'
-                value = st.number_input(label, min_value=minimum, value=default, step=.01 if default < 10 else 1., format='%.4f', key=prefix+'_'+key)
-                values[key] = value; input_rows.append((label, f'{value:g}'))
+                value = st.number_input(label, min_value=minimum, value=default, step=.01 if default < 10 else 1., format='%.2f', key=prefix+'_'+key)
+                values[key] = value; input_rows.append((label, f'{value:.2f}'))
             if mode == 'WATER · 압력손실':
                 st.markdown("<div class='subhead'>배관 부속·밸브 등가길이</div>", unsafe_allow_html=True)
                 how = st.radio('등가길이 입력 방법', ['직접 입력', '부속품 수량으로 계산'], key=prefix+'_fitting_method')
                 if how == '직접 입력':
                     for key, label in [('threaded','나사식 부속 등가길이 (m)'), ('welded','용접식 부속 등가길이 (m)'), ('valves','밸브 등가길이 (m)')]:
-                        values[key] = st.number_input(label, min_value=0., value=0., step=.1, key=prefix+'_'+key)
-                        input_rows.append((label, f'{values[key]:g}'))
+                        values[key] = st.number_input(label, min_value=0., value=0., step=.1, format='%.2f', key=prefix+'_'+key)
+                        input_rows.append((label, f'{values[key]:.2f}'))
                 else:
                     size = st.selectbox('부속품 호칭구경 (A)', PIPE_SIZES, index=3, key=prefix+'_size')
                     input_rows.append(('부속품 호칭구경 (A)', str(size)))
@@ -1466,15 +1533,15 @@ def engineering_calculator(page: str) -> None:
                         length = lengths[PIPE_SIZES.index(size)]
                         if length is None:
                             st.caption(f'{fitting}: 원본에 {size}A 등가길이가 없습니다. 직접 입력을 이용하세요.'); continue
-                        number = st.number_input(f'{fitting} · {length:g} m/개', min_value=0, value=0, step=1, key=prefix+'_'+fitting)
+                        number = st.number_input(f'{fitting} · {length:.2f} m/개', min_value=0, value=0, step=1, format='%.2f', key=prefix+'_'+fitting)
                         values[group] += number*length
-                        if number: input_rows.append((fitting, f'{number}개 × {length:g} m'))
+                        if number: input_rows.append((fitting, f'{number:.2f}개 × {length:.2f} m'))
                     for key, label in [('threaded','나사식 합계'), ('welded','용접식 합계'), ('valves','밸브 합계')]:
-                        input_rows.append((label, f'{values[key]:g} m'))
+                        input_rows.append((label, f'{values[key]:.2f} m'))
             if page == 'slit':
                 values['connection'] = st.selectbox('접속구 구경', list(CONNECTION_CAPACITY), key=prefix+'_connection')
                 input_rows.append(('접속구 구경', values['connection']))
-                st.caption(f"접속구 1개당 기본풍량: {CONNECTION_CAPACITY[values['connection']]:g} m³/min")
+                st.caption(f"접속구 1개당 기본풍량: {CONNECTION_CAPACITY[values['connection']]:.2f} m³/min")
             st.button('엑셀 예시값으로 초기화', key=prefix+'_reset', width='stretch', on_click=reset_engineering, args=(prefix,))
     with right:
         st.markdown("<div class='workspace-head'><span>CALCULATION OUTPUT</span><h2>계산 결과</h2><p>입력값이 바뀌면 결과와 그래프가 즉시 갱신됩니다.</p></div>", unsafe_allow_html=True)
@@ -1488,43 +1555,43 @@ def engineering_calculator(page: str) -> None:
                 for start in range(0, len(result['metrics']), 2):
                     columns = st.columns(2)
                     for col, (label, value, unit) in zip(columns, result['metrics'][start:start+2]):
-                        with col: st.metric(label + (f' ({unit})' if unit else ''), f'{value:,.0f}' if unit == '개' else f'{value:,.3f}')
+                        with col: st.metric(label + (f' ({unit})' if unit else ''), f'{value:,.2f}')
                 if result['note']: st.caption(result['note'])
             with st.container(border=True):
                 xlabel, rows = engineering_curve(page, mode, values)
                 label, _, unit = result['metrics'][0]
                 st.markdown("<div class='subhead'>입력 조건에 따른 변화</div>", unsafe_allow_html=True)
-                curve_key = 'p' if page == 'air' else ('q' if mode == 'WATER · 압력손실' else CALC_FIELDS[mode][0][0])
+                curve_key = engineering_curve_key(page, mode)
                 st.vega_lite_chart(spec={
-                    'height': 250,
+                    'height': 350, 'background': '#ffffff',
                     'layer': [
-                        {'data': {'values': rows}, 'mark': {'type':'line','color':'#0085c8','strokeWidth':3}, 'encoding': {'x': {'field':'x','type':'quantitative','title':xlabel}, 'y': {'field':'y','type':'quantitative','title':f'{label} ({unit})'}, 'tooltip':[{'field':'x','title':xlabel,'format':'.3f'},{'field':'y','title':label,'format':'.3f'}]}},
+                        {'data': {'values': rows}, 'mark': {'type':'line','color':'#0085c8','strokeWidth':3}, 'encoding': {'x': {'field':'x','type':'quantitative','title':xlabel}, 'y': {'field':'y','type':'quantitative','title':f'{label} ({unit})'}, 'tooltip':[{'field':'x','title':xlabel,'format':'.2f'},{'field':'y','title':label,'format':'.2f'}]}},
                         {'data': {'values': [{'x':values[curve_key], 'y':result['metrics'][0][1]}]}, 'mark': {'type':'point','color':'#0a9b73','filled':True,'size':110}, 'encoding':{'x':{'field':'x','type':'quantitative'},'y':{'field':'y','type':'quantitative'}}},
-                    ], 'config': {'view': {'stroke':None}, 'axis': {'labelColor':'#617789','titleColor':'#294a61'}}
-                }, width='stretch')
+                    ], 'config': {'view': {'stroke':'#d6e2e9','fill':'#ffffff'}, 'axis': {'labelColor':'#577084','titleColor':'#14364e','gridColor':'#dce7ed','domainColor':'#d6e2e9','tickColor':'#d6e2e9','format':'.2f'}}
+                }, width='stretch', theme=None)
                 st.caption('파란색은 선택한 입력값에 따른 계산 결과, 초록색은 현재 조건입니다. 다른 입력값은 고정합니다.')
             with st.expander('계산 방식 확인'):
                 for formula in result['formula']: st.latex(formula)
                 st.caption('계산식 출처: '+SOURCE_NAMES[page])
             with st.container(border=True):
                 st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
-                st.download_button('PDF 리포트 다운로드', data=engineering_pdf(title, mode, input_rows, result, SOURCE_NAMES[page]), file_name=f'{page}_calculation_report.pdf', mime='application/pdf', type='primary', width='stretch')
+                st.download_button('PDF 리포트 다운로드', data=engineering_pdf(title, mode, input_rows, result, SOURCE_NAMES[page], page, values), file_name=f'{page}_calculation_report.pdf', mime='application/pdf', type='primary', width='stretch')
     if page == 'pipe':
         with st.expander('배관 권장 유속 · 부속품 등가길이 참고표'):
-            st.dataframe([{'유체':fluid, '사용 개소':where, '유속 (m/s)':v} for fluid, where, v in PIPE_VELOCITIES], hide_index=True, width='stretch')
+            engineering_table([{'유체':fluid, '사용 개소':where, '유속 (m/s)':v} for fluid, where, v in PIPE_VELOCITIES])
             st.caption('AIR 최대 허용유속: 120 m/s (첨부 자료 기준). 호칭구경과 실제 배관 내경은 다릅니다.')
-            st.dataframe([{'부속품':name, **{f'{size}A':length for size, length in zip(PIPE_SIZES, lengths)}} for _, name, lengths in PIPE_FITTINGS], hide_index=True, width='stretch')
+            engineering_table([{'부속품':name, **{f'{size}A':length for size, length in zip(PIPE_SIZES, lengths)}} for _, name, lengths in PIPE_FITTINGS])
             st.caption('등가길이 단위: m. 빈 값은 원본 미제공입니다.')
     elif page == 'air':
         with st.expander('노즐 구경·압력별 공기량 참고표'):
             pressures = [.7, 1., 1.5, 2., 2.5, 3., 4., 5., 7., 10.]
-            st.caption(f"현재 온도 {values['t']:g}°C와 유량계수 {values['c']:g} 적용 · 압력 단위 {values['pressure_unit']} · 유량 L/min")
+            st.caption(f"현재 온도 {values['t']:.2f}°C와 유량계수 {values['c']:.2f} 적용 · 압력 단위 {values['pressure_unit']} · 유량 L/min")
             if values['t'] > -273:
-                st.dataframe([{'구경 (mm)':d, **{f'{p:g}':round(engineering_result('air','원형 노즐',dict(values,d=d,p=p))['metrics'][0][1],3) for p in pressures}} for d in AIR_REFERENCE_DIAMETERS], hide_index=True, width='stretch')
+                engineering_table([{'구경 (mm)':d, **{f'{p:.2f}':round(engineering_result('air','원형 노즐',dict(values,d=d,p=p))['metrics'][0][1],2) for p in pressures}} for d in AIR_REFERENCE_DIAMETERS])
     elif page == 'slit':
         with st.expander('용도별 풍속·슬릿간격 / 접속구 선정 기준', expanded=True):
-            st.dataframe([{'용도':name, '풍속 (m/s)':speed, '슬릿간격 (mm)':gap} for name, speed, gap in SLIT_APPLICATIONS], hide_index=True, width='stretch')
-            st.dataframe([{'접속구 구경':name,'1개당 기본풍량 (m³/min)':capacity} for name,capacity in CONNECTION_CAPACITY.items()], hide_index=True, width='stretch')
+            engineering_table([{'용도':name, '풍속 (m/s)':speed, '슬릿간격 (mm)':gap} for name, speed, gap in SLIT_APPLICATIONS])
+            engineering_table([{'접속구 구경':name,'1개당 기본풍량 (m³/min)':capacity} for name,capacity in CONNECTION_CAPACITY.items()])
             st.caption('첨부 이미지의 예제에는 풍속·풍량·수량 간 불일치가 있어, 계산기는 입력한 풍속으로 Q=A×v를 계산하고 접속구 수량을 올림합니다.')
         with st.expander('엑셀에 삽입된 원본 이미지'):
             for data in SLIT_SOURCE_IMAGES: st.image(base64.b64decode(data), width='stretch')
