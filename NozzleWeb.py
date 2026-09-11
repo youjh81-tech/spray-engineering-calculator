@@ -642,6 +642,7 @@ html,body,[class*="css"],[data-testid="stAppViewContainer"]{font-family:"Noto Sa
 .calc-intro{display:flex;align-items:center;justify-content:space-between;gap:2rem;margin:.25rem 0 1.35rem;padding:1.35rem 1.5rem;border:1px solid #cbdde7;border-left:6px solid var(--blue);background:linear-gradient(120deg,#fff 0,#f3f9fc 66%,#e1f3fa 100%);box-shadow:0 10px 28px rgba(7,40,68,.07)}.calc-intro .calc-index{color:#0079b6;font-size:.68rem;font-weight:800;letter-spacing:.16em}.calc-intro h1{margin:.3rem 0 .35rem;color:var(--navy);font-size:clamp(1.65rem,3vw,2.25rem);letter-spacing:-.045em}.calc-intro p{margin:0;color:#587184;font-size:.84rem}.calc-formula{flex:0 0 auto;padding:.75rem 1rem;border-radius:4px;background:#072844;color:#fff;font:700 1rem/1.2 Georgia,serif;letter-spacing:.04em}
 .workspace-head{margin:.15rem 0 1rem}.workspace-head span{display:block;color:#0079b6;font-size:.8rem;font-weight:800;letter-spacing:.14em}.workspace-head h2{margin:.22rem 0;color:var(--navy);font-size:1.48rem;line-height:1.3}.workspace-head p{margin:.25rem 0;color:var(--muted);font-size:.9rem}.subhead{margin:.45rem 0 .55rem;color:#153b55;font-size:.84rem;font-weight:800}.subhead:before{content:"";display:inline-block;width:4px;height:13px;margin-right:.45rem;vertical-align:-2px;background:var(--blue)}
 .reference-guide{padding:1rem;border:1px solid #bfd9e6;background:#f4f9fc}.catalog-table-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 1rem;background:linear-gradient(100deg,#072844,#0a5480);color:#fff}.catalog-table-head span{font-size:.7rem;font-weight:800;letter-spacing:.14em;color:#63d5ff}.catalog-table-head strong{display:block;margin-top:.15rem;font-size:1rem}.catalog-table-head em{font-style:normal;font-size:.74rem;color:#d7edf6}.catalog-scroll{overflow-x:auto;background:#fff;border:1px solid #b9ceda;border-top:0}.catalog-table{width:100%;min-width:900px;border-collapse:collapse;table-layout:fixed;color:#18394f;font-size:.8rem}.catalog-table th,.catalog-table td{padding:.55rem .34rem;border:1px solid #b8cbd6;text-align:center;white-space:nowrap}.catalog-table thead tr:first-child th{background:#0b3a5c;color:#fff;font-weight:800}.catalog-table thead tr:nth-child(2) th{background:#dceff7;color:#123e5b;font-weight:800}.catalog-table th:nth-child(-n+3){width:10%}.catalog-table tbody tr:nth-child(even) td{background:#f5f9fb}.catalog-table tbody .selected-row td{box-shadow:inset 0 2px #e6ca00,inset 0 -2px #e6ca00;background:#eaf6fa}.catalog-table .selected-col{background:#fff7bd!important;box-shadow:inset 3px 0 #efd200,inset -3px 0 #efd200}.catalog-table thead .selected-col{color:#123348!important;background:#ffe45d!important}.catalog-table .row-key,.catalog-table .selected-point{background:#ffe45d!important;color:#092f49;font-weight:900}.guide-copy{display:grid;grid-template-columns:.8fr .8fr 1.15fr 1.45fr;gap:.65rem;margin-top:.75rem}.guide-item,.guide-example,.guide-note{margin:0;padding:.68rem .75rem;line-height:1.55}.guide-item{background:#fff;border-left:4px solid #f0cf00;color:#496478;font-size:.76rem}.guide-item b{display:block;color:var(--navy);font-size:.8rem}.guide-example{background:#dff2fa;color:#23465e;font-size:.76rem}.guide-example b{color:#006fa7}.guide-note{border-left:4px solid var(--blue);background:#fff;color:#405e72;font-size:.76rem}[data-testid="stExpander"] summary{background:#102c42!important;border-radius:2px!important}[data-testid="stExpander"] summary,[data-testid="stExpander"] summary *{color:#fff!important;-webkit-text-fill-color:#fff!important;fill:#fff!important;opacity:1!important;font-size:.9rem!important;font-weight:800!important}
+.workspace-head span{font-size:.92rem}.workspace-head h2{font-size:1.68rem}.workspace-head p{font-size:.95rem}.catalog-table thead tr:first-child th:first-child{background:#0b6b62}.catalog-table thead tr:nth-child(2) th{background:#ffecd2}.catalog-table tbody td:first-child{background:#d9f2e8!important;color:#124f48;font-weight:800}.catalog-table .row-key{background:#ffe45d!important;color:#092f49}.guide-item.pressure-key{border-left-color:#ee8a20;background:#ffecd2;color:#654214}.guide-item.nozzle-key{border-left-color:#0b8a72;background:#d9f2e8;color:#17574e}
 .panel-title{margin:.2rem 0 .7rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);color:var(--navy);font-size:.9rem;font-weight:800}.panel-title span{margin-right:.35rem;color:var(--blue)}
 .formula{padding:.9rem 1rem;border-left:4px solid var(--sky);background:#edf8fc;color:#284960;font-size:.81rem;line-height:1.75}.legal{margin-top:1.8rem;padding-top:.8rem;border-top:1px solid var(--line);color:#728695;font-size:.7rem;line-height:1.6}
 div[data-testid="stVerticalBlockBorderWrapper"]{border-color:var(--line)!important;border-radius:3px!important;background:rgba(255,255,255,.97);box-shadow:0 9px 25px rgba(7,40,68,.05)}
@@ -654,14 +655,18 @@ div[data-baseweb="radio"]{gap:.4rem}div[data-baseweb="radio"] label{padding:.45r
 [data-testid="stNumberInput"] button{display:none!important}
 .stButton>button,.stDownloadButton>button{min-height:42px;border-radius:2px;font-weight:750;color:#fff!important;-webkit-text-fill-color:#fff!important;background:#111827!important;border-color:#111827!important}.stButton>button *,.stDownloadButton>button *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{border-color:var(--blue)!important;background:var(--blue)!important}
 @media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}.reference-guide{padding:.65rem}.catalog-table-head{align-items:flex-start;padding:.7rem}.catalog-table-head em{display:none}.guide-copy{grid-template-columns:1fr 1fr}.workspace-head span{font-size:.74rem}.workspace-head h2{font-size:1.32rem}.workspace-head p{font-size:.84rem}}
+@media(max-width:720px){.workspace-head span{font-size:.84rem}.workspace-head h2{font-size:1.48rem}.workspace-head p{font-size:.9rem}}
 </style>
 """
 
 DEFAULTS: dict[str, Any] = {
     "flow_mode": "일류체 노즐 (LPM)",
     "product_name": "",
+    "target_basis": "액체 압력 기준",
     "target_liquid_input": 5.0,
     "target_liquid_slider": 5.0,
+    "target_flow_input": 5.0,
+    "target_flow_slider": 5.0,
     "target_air_input": 1.0,
     "target_air_slider": 1.0,
     "p1_liquid_pressure": 2.0,
@@ -680,7 +685,10 @@ def init_state() -> None:
 
 
 def reset_conditions() -> None:
-    condition_keys = [key for key in DEFAULTS if key.startswith("target_") or key.startswith("p1_") or key.startswith("p2_")]
+    condition_keys = [
+        key for key in DEFAULTS
+        if (key.startswith("target_") and key != "target_basis") or key.startswith("p1_") or key.startswith("p2_")
+    ]
     for key in condition_keys:
         st.session_state[key] = 0.0
 
@@ -725,7 +733,7 @@ def home() -> None:
     )
     cols = st.columns(3, gap="large")
     cards = [
-        ("01 · AVAILABLE", "노즐 분사량 계산기", "두 개의 데이터시트 기준점으로 목표 압력의 액체 유량과 공기 소모량을 예측합니다.", False),
+        ("01 · AVAILABLE", "노즐 분사량 계산기", "두 기준점으로 목표 압력의 유량 또는 목표 유량에 필요한 압력을 계산합니다.", False),
         ("02 · NEXT", "두 번째 계산기", "두 번째 계산식은 다음 단계에서 같은 화면 체계로 추가합니다.", True),
         ("03 · PLANNED", "세 번째 계산기", "세 번째 계산식은 앞선 계산기를 완성한 뒤 연결합니다.", True),
     ]
@@ -744,7 +752,33 @@ def home() -> None:
     footer()
 
 
-def calculate(mode: str, target_liquid: float, target_air: float, points: list[dict[str, float | bool]]) -> dict[str, Any]:
+def liquid_flow_at_pressure(mode: str, pressure: float, target_air: float, avg_k: float) -> float:
+    if pressure <= 0 or avg_k <= 0:
+        return 0.0
+    factor = max(0.15, 1.0 - 0.25 * target_air / pressure) if mode.startswith("이류체") else 1.0
+    return avg_k * math.sqrt(pressure) * factor
+
+
+def pressure_for_flow(mode: str, target_flow: float, target_air: float, avg_k: float) -> float:
+    if target_flow <= 0 or avg_k <= 0:
+        return 0.0
+    if not mode.startswith("이류체"):
+        return (target_flow / avg_k) ** 2
+    lower = 0.0
+    upper = max(1.0, (target_flow / avg_k) ** 2)
+    while liquid_flow_at_pressure(mode, upper, target_air, avg_k) < target_flow and upper < 1_000_000.0:
+        upper *= 2.0
+    for _ in range(80):
+        middle = (lower + upper) / 2.0
+        if liquid_flow_at_pressure(mode, middle, target_air, avg_k) < target_flow:
+            lower = middle
+        else:
+            upper = middle
+    return (lower + upper) / 2.0
+
+
+def calculate(mode: str, target_basis: str, target_value: float, target_air: float,
+              points: list[dict[str, float | bool]]) -> dict[str, Any]:
     liquid_ks: list[float] = []
     air_ks: list[float] = []
     calculated: list[dict[str, float | bool]] = []
@@ -770,18 +804,19 @@ def calculate(mode: str, target_liquid: float, target_air: float, points: list[d
         calculated.append({**point, "kl": kl, "ka": ka})
     avg_k = sum(liquid_ks) / len(liquid_ks) if liquid_ks else 0.0
     avg_air_k = sum(air_ks) / len(air_ks) if air_ks else 0.0
-    liquid_flow = 0.0
-    if target_liquid > 0 and avg_k > 0:
-        factor = max(0.15, 1.0 - 0.25 * target_air / target_liquid) if dual else 1.0
-        liquid_flow = avg_k * math.sqrt(target_liquid) * factor
+    flow_basis = target_basis == "액체 유량 기준"
+    target_pressure = pressure_for_flow(mode, target_value, target_air, avg_k) if flow_basis else target_value
+    liquid_flow = liquid_flow_at_pressure(mode, target_pressure, target_air, avg_k)
     air_flow = avg_air_k * math.sqrt(target_air) if dual and target_air > 0 and avg_air_k > 0 else 0.0
     return {"avg_k": avg_k, "avg_air_k": avg_air_k, "liquid_flow": liquid_flow, "air_flow": air_flow,
+            "target_basis": target_basis, "target_input": target_value, "target_pressure": target_pressure,
             "valid_count": len(liquid_ks), "points": calculated}
 
 
-def chart_spec(mode: str, target_liquid: float, target_air: float, result: dict[str, Any]) -> dict[str, Any]:
+def chart_spec(mode: str, target_air: float, result: dict[str, Any]) -> dict[str, Any]:
     active = [p for p in result["points"] if bool(p["active"]) and float(p["pl"]) > 0 and float(p["ql"]) > 0]
-    max_p = max(5.0, target_liquid * 1.25, max((float(p["pl"]) * 1.25 for p in active), default=0.0))
+    target_pressure = float(result["target_pressure"])
+    max_p = max(5.0, target_pressure * 1.25, max((float(p["pl"]) * 1.25 for p in active), default=0.0))
     curve = []
     for i in range(81):
         p = max_p * i / 80
@@ -793,7 +828,7 @@ def chart_spec(mode: str, target_liquid: float, target_air: float, result: dict[
     refs = [{"pressure": float(p["pl"]), "flow": float(p["ql"]), "label": f"P{i}"}
             for i, p in enumerate(result["points"], start=1)
             if bool(p["active"]) and float(p["pl"]) > 0 and float(p["ql"]) > 0]
-    target = [{"pressure": target_liquid, "flow": float(result["liquid_flow"]), "label": "목표점"}]
+    target = [{"pressure": target_pressure, "flow": float(result["liquid_flow"]), "label": "목표점"}]
     unit = "L/H" if mode.startswith("이류체") else "LPM"
     return {"height": 350, "background": "#fff", "config": {"view": {"stroke": "#d6e2e9"},
             "axis": {"labelColor": "#577084", "titleColor": "#14364e", "gridColor": "#dce7ed"}}, "layer": [
@@ -808,18 +843,19 @@ def chart_spec(mode: str, target_liquid: float, target_air: float, result: dict[
          "encoding": {"x": {"field": "pressure", "type": "quantitative"}}},
         {"data": {"values": target}, "mark": {"type": "point", "filled": True, "color": "#0a9b73", "size": 175},
          "encoding": {"x": {"field": "pressure", "type": "quantitative"}, "y": {"field": "flow", "type": "quantitative"},
-                      "tooltip": [{"field": "label", "title": "구분"}, {"field": "pressure", "title": "목표 압력 (bar)"}, {"field": "flow", "title": f"예측 유량 ({unit})"}]}}
+                      "tooltip": [{"field": "label", "title": "구분"}, {"field": "pressure", "title": "계산 압력 (bar)", "format": ".3f"}, {"field": "flow", "title": f"계산 유량 ({unit})", "format": ".3f"}]}}
     ]}
 
 
-def pdf_curve_drawing(mode: str, target_liquid: float, target_air: float, result: dict[str, Any]) -> Any:
+def pdf_curve_drawing(mode: str, target_air: float, result: dict[str, Any]) -> Any:
     from reportlab.graphics.shapes import Circle, Drawing, Line, Path, String
     from reportlab.lib.colors import HexColor
 
-    width, height = 500, 250
+    width, height = 500, 215
     left, right, bottom, top = 52, 18, 36, 22
     active = [p for p in result["points"] if bool(p["active"]) and float(p["pl"]) > 0 and float(p["ql"]) > 0]
-    max_p = max(5.0, target_liquid * 1.25, max((float(p["pl"]) * 1.25 for p in active), default=0.0))
+    target_pressure = float(result["target_pressure"])
+    max_p = max(5.0, target_pressure * 1.25, max((float(p["pl"]) * 1.25 for p in active), default=0.0))
     curve: list[tuple[float, float]] = []
     for i in range(81):
         p = max_p * i / 80
@@ -849,15 +885,15 @@ def pdf_curve_drawing(mode: str, target_liquid: float, target_air: float, result
         if bool(point["active"]) and float(point["pl"]) > 0 and float(point["ql"]) > 0:
             drawing.add(Circle(x(float(point["pl"])), y(float(point["ql"])), 4, fillColor=HexColor("#075F9B"), strokeColor=None))
             drawing.add(String(x(float(point["pl"])), y(float(point["ql"])) + 7, f"P{index}", fontName="Helvetica-Bold", fontSize=7, fillColor=ink, textAnchor="middle"))
-    drawing.add(Line(x(target_liquid), bottom, x(target_liquid), y(float(result["liquid_flow"])), strokeColor=green, strokeWidth=1, strokeDashArray=[4, 3]))
-    drawing.add(Circle(x(target_liquid), y(float(result["liquid_flow"])), 5, fillColor=green, strokeColor=None))
+    drawing.add(Line(x(target_pressure), bottom, x(target_pressure), y(float(result["liquid_flow"])), strokeColor=green, strokeWidth=1, strokeDashArray=[4, 3]))
+    drawing.add(Circle(x(target_pressure), y(float(result["liquid_flow"])), 5, fillColor=green, strokeColor=None))
     unit = "L/H" if mode.startswith("이류체") else "LPM"
     drawing.add(String(width / 2, 8, "Liquid Pressure (bar)", fontName="Helvetica-Bold", fontSize=8, fillColor=ink, textAnchor="middle"))
     drawing.add(String(left, height - 10, f"Flow Rate ({unit})", fontName="Helvetica-Bold", fontSize=8, fillColor=ink))
     return drawing
 
 
-def build_pdf(product: str, mode: str, target_liquid: float, target_air: float,
+def build_pdf(product: str, mode: str, target_basis: str, target_value: float, target_air: float,
               result: dict[str, Any]) -> bytes:
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_RIGHT
@@ -895,8 +931,14 @@ def build_pdf(product: str, mode: str, target_liquid: float, target_air: float,
                               ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
     story.append(info)
     unit = "L/H" if mode.startswith("이류체") else "LPM"
-    result_rows = [["항목", "결과"], ["목표 액체 압력", f"{target_liquid:.2f} bar"],
-                   ["예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}"], ["평균 유량 계수 K", f"{result['avg_k']:.3f}"]]
+    result_rows = [["항목", "결과"], ["계산 기준", target_basis]]
+    if target_basis == "액체 유량 기준":
+        result_rows.extend([["목표 액체 유량", f"{target_value:.2f} {unit}"],
+                            ["예측 필요 액체 압력", f"{result['target_pressure']:.2f} bar"]])
+    else:
+        result_rows.extend([["목표 액체 압력", f"{target_value:.2f} bar"],
+                            ["예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}"]])
+    result_rows.append(["평균 유량 계수 K", f"{result['avg_k']:.3f}"])
     if mode.startswith("이류체"):
         result_rows.extend([["목표 공기 압력", f"{target_air:.2f} bar"], ["예측 공기 소모량", f"{result['air_flow']:.2f} NL/min"]])
     story.append(Paragraph("2. 예측 결과", section))
@@ -907,7 +949,7 @@ def build_pdf(product: str, mode: str, target_liquid: float, target_air: float,
                                        ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 6)]))
     story.append(results_table)
     story.append(Paragraph("3. 압력-유량 특성 곡선", section))
-    story.append(pdf_curve_drawing(mode, target_liquid, target_air, result))
+    story.append(pdf_curve_drawing(mode, target_air, result))
     story.append(Paragraph("4. 기준점", section))
     point_rows = [["기준점", "액체 압력 (bar)", f"액체 유량 ({unit})", "K"]]
     for index, point in enumerate(result["points"], start=1):
@@ -934,13 +976,28 @@ def build_pdf(product: str, mode: str, target_liquid: float, target_air: float,
     return buffer.getvalue()
 
 
-def targets(mode: str) -> tuple[float, float]:
+def targets(mode: str) -> tuple[str, float, float]:
     st.markdown("<div class='subhead'>목표 운전 조건</div>", unsafe_allow_html=True)
+    basis_options = ("액체 압력 기준", "액체 유량 기준")
+    target_basis = st.radio(
+        "계산 기준",
+        basis_options,
+        index=basis_options.index(str(DEFAULTS["target_basis"])),
+        horizontal=True,
+        key="target_basis",
+    )
     a, b = st.columns([1, 2.1])
-    with a:
-        liquid = st.number_input("목표 액체 압력 (bar)", min_value=0.0, max_value=10.0, step=.01, format="%.2f", key="target_liquid_input", on_change=sync, args=("target_liquid_input", "target_liquid_slider"), **initial_widget_value("target_liquid_input"))
-    with b:
-        st.slider("액체 압력 빠른 조정", 0.0, 10.0, step=.05, key="target_liquid_slider", on_change=sync, args=("target_liquid_slider", "target_liquid_input"), **initial_widget_value("target_liquid_slider"))
+    if target_basis == "액체 유량 기준":
+        unit = "L/H" if mode.startswith("이류체") else "LPM"
+        with a:
+            target_value = st.number_input(f"목표 액체 유량 ({unit})", min_value=0.0, max_value=1000.0, step=.01, format="%.2f", key="target_flow_input", on_change=sync, args=("target_flow_input", "target_flow_slider"), **initial_widget_value("target_flow_input"))
+        with b:
+            st.slider(f"액체 유량 빠른 조정 ({unit})", 0.0, 1000.0, step=.10, key="target_flow_slider", on_change=sync, args=("target_flow_slider", "target_flow_input"), **initial_widget_value("target_flow_slider"))
+    else:
+        with a:
+            target_value = st.number_input("목표 액체 압력 (bar)", min_value=0.0, max_value=10.0, step=.01, format="%.2f", key="target_liquid_input", on_change=sync, args=("target_liquid_input", "target_liquid_slider"), **initial_widget_value("target_liquid_input"))
+        with b:
+            st.slider("액체 압력 빠른 조정", 0.0, 10.0, step=.05, key="target_liquid_slider", on_change=sync, args=("target_liquid_slider", "target_liquid_input"), **initial_widget_value("target_liquid_slider"))
     air = float(st.session_state.get("target_air_input", DEFAULTS["target_air_input"]))
     if mode.startswith("이류체"):
         a, b = st.columns([1, 2.1])
@@ -948,7 +1005,7 @@ def targets(mode: str) -> tuple[float, float]:
             air = st.number_input("목표 공기 압력 (bar)", min_value=0.0, max_value=10.0, step=.01, format="%.2f", key="target_air_input", on_change=sync, args=("target_air_input", "target_air_slider"), **initial_widget_value("target_air_input"))
         with b:
             st.slider("공기 압력 빠른 조정", 0.0, 10.0, step=.05, key="target_air_slider", on_change=sync, args=("target_air_slider", "target_air_input"), **initial_widget_value("target_air_slider"))
-    return float(liquid), float(air)
+    return str(target_basis), float(target_value), float(air)
 
 
 def reference_points(mode: str) -> list[dict[str, float | bool]]:
@@ -979,7 +1036,7 @@ def flow_calculator() -> None:
     back, _ = st.columns([1.1, 5])
     with back:
         st.button("← 계산기 목록", width="stretch", on_click=go, args=("home",))
-    st.markdown("""<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 01</span><h1>노즐 분사량 계산기</h1><p>두 데이터시트 기준점의 평균 K값으로 목표 압력의 분사량을 계산합니다.</p></div><div class="calc-formula">Q = K√P</div></section>""", unsafe_allow_html=True)
+    st.markdown("""<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 01</span><h1>노즐 분사량 계산기</h1><p>두 데이터시트 기준점의 평균 K값으로 목표 압력 또는 목표 유량을 계산합니다.</p></div><div class="calc-formula">Q = K√P</div></section>""", unsafe_allow_html=True)
 
     with st.expander("기준점 입력 방법", expanded=True):
         st.markdown(
@@ -1012,8 +1069,8 @@ def flow_calculator() -> None:
                 </table>
             </div>
             <div class="guide-copy">
-                <div class="guide-item"><b>가로 압력값</b>숫자의 단위는 bar입니다.</div>
-                <div class="guide-item"><b>세로 용량 크기</b>노즐 번호로 확인합니다.</div>
+                <div class="guide-item pressure-key"><b>가로 입력값</b>숫자의 단위는 bar입니다.</div>
+                <div class="guide-item nozzle-key"><b>세로 용량 크기</b>노즐 번호로 확인합니다.</div>
                 <div class="guide-example"><b>예시 · 노즐 번호 2에서 목표 압력 2.50 bar</b><br>
                 기준점 1: <strong>2.00 bar / 1.20 LPM</strong><br>
                 기준점 2: <strong>3.00 bar / 1.50 LPM</strong></div>
@@ -1031,13 +1088,13 @@ def flow_calculator() -> None:
             mode_options = ("일류체 노즐 (LPM)", "이류체 노즐 (L/H + Air)")
             mode = st.radio("노즐 형식", mode_options, index=mode_options.index(str(DEFAULTS["flow_mode"])), key="flow_mode")
             product = st.text_input("노즐 / 제품명", placeholder="클릭하여 입력", key="product_name", **initial_widget_value("product_name"))
-            target_liquid, target_air = targets(mode)
+            target_basis, target_value, target_air = targets(mode)
             st.markdown("<div class='subhead'>데이터시트 기준점</div>", unsafe_allow_html=True)
             st.caption("P1과 P2를 모두 적용하여 두 K값의 평균으로 계산합니다.")
             points = reference_points(mode)
             st.button("조건 입력값 초기화", key="reset_conditions", width="stretch", on_click=reset_conditions)
 
-    result = calculate(mode, target_liquid, target_air, points)
+    result = calculate(mode, target_basis, target_value, target_air, points)
     unit = "L/H" if mode.startswith("이류체") else "LPM"
 
     with output_col:
@@ -1045,7 +1102,10 @@ def flow_calculator() -> None:
         with st.container(border=True):
             metric_slots = st.columns([1.25, 1, 1])
             with metric_slots[0]:
-                st.metric("예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}")
+                if target_basis == "액체 유량 기준":
+                    st.metric("예측 필요 액체 압력", f"{result['target_pressure']:.2f} bar")
+                else:
+                    st.metric("예측 액체 분사량", f"{result['liquid_flow']:.2f} {unit}")
             with metric_slots[1]:
                 st.metric("예측 공기 소모량" if mode.startswith("이류체") else "적용 기준점", f"{result['air_flow']:.2f} NL/min" if mode.startswith("이류체") else f"{result['valid_count']} 개")
             with metric_slots[2]:
@@ -1062,18 +1122,18 @@ def flow_calculator() -> None:
 
         with st.container(border=True):
             st.markdown("<div class='subhead'>압력-유량 특성 곡선</div>", unsafe_allow_html=True)
-            st.vega_lite_chart(spec=chart_spec(mode, target_liquid, target_air, result), width="stretch")
+            st.vega_lite_chart(spec=chart_spec(mode, target_air, result), width="stretch")
             st.caption("파란색은 평균 K 특성곡선, 초록색은 목표 운전점입니다.")
 
         with st.container(border=True):
             st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
-            pdf_data = build_pdf(product, mode, target_liquid, target_air, result)
+            pdf_data = build_pdf(product, mode, target_basis, target_value, target_air, result)
             st.download_button("PDF 리포트 다운로드", data=pdf_data, file_name="nozzle_flow_rate_report.pdf", mime="application/pdf", type="primary", width="stretch")
             with st.expander("계산 방식 확인"):
                 if mode.startswith("일류체"):
-                    st.markdown("<div class='formula'><b>일류체</b><br>① Kᵢ = Qᵢ ÷ √Pᵢ<br>② K̄ = 유효한 Kᵢ의 평균<br>③ Qₜ = K̄ × √Pₜ</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='formula'><b>일류체</b><br>① Kᵢ = Qᵢ ÷ √Pᵢ<br>② K̄ = 유효한 Kᵢ의 평균<br>③ 압력 기준: Qₜ = K̄ × √Pₜ<br>④ 유량 기준: Pₜ = (Qₜ ÷ K̄)²</div>", unsafe_allow_html=True)
                 else:
-                    st.markdown("<div class='formula'><b>이류체</b><br>① F = max(0.15, 1 - 0.25 × Pₐ ÷ Pₗ)<br>② Kₗ = Qₗ ÷ (√Pₗ × F)<br>③ Qₗ,ₜ = K̄ₗ × √Pₗ,ₜ × Fₜ<br>④ Kₐ = Qₐ ÷ √Pₐ<br>⑤ Qₐ,ₜ = K̄ₐ × √Pₐ,ₜ</div>", unsafe_allow_html=True)
+                    st.markdown("<div class='formula'><b>이류체</b><br>① F = max(0.15, 1 - 0.25 × Pₐ ÷ Pₗ)<br>② Kₗ = Qₗ ÷ (√Pₗ × F)<br>③ 압력 기준: Qₗ,ₜ = K̄ₗ × √Pₗ,ₜ × Fₜ<br>④ 유량 기준: 동일 식을 역산하여 Pₗ,ₜ 계산<br>⑤ Kₐ = Qₐ ÷ √Pₐ, Qₐ,ₜ = K̄ₐ × √Pₐ,ₜ</div>", unsafe_allow_html=True)
     footer()
 
 
