@@ -1043,7 +1043,7 @@ def reference_points(mode: str) -> list[dict[str, float | bool]]:
     data = []
     for index in (1, 2):
         with st.container(border=True):
-            st.markdown(f"**기준점 {index} (P{index})**")
+            active = st.checkbox(f"기준점 {index} 적용", value=True, key=f"reference_{index}_active")
             cols = st.columns(2)
             with cols[0]:
                 pl = st.number_input(f"액체 압력 P{index} (bar)", min_value=0.0, max_value=100.0, step=.01, format="%.2f", key=f"p{index}_liquid_pressure", **initial_widget_value(f"p{index}_liquid_pressure"))
@@ -1058,7 +1058,7 @@ def reference_points(mode: str) -> list[dict[str, float | bool]]:
                     pa = st.number_input(f"공기 압력 Air{index} (bar)", min_value=0.0, max_value=100.0, step=.01, format="%.2f", key=f"p{index}_air_pressure", **initial_widget_value(f"p{index}_air_pressure"))
                 with cols[1]:
                     qa = st.number_input(f"공기 유량 QA{index} (NL/min)", min_value=0.0, max_value=100000.0, step=.01, format="%.2f", key=f"p{index}_air_flow", **initial_widget_value(f"p{index}_air_flow"))
-            data.append({"active": True, "pl": float(pl), "ql": float(ql), "pa": float(pa), "qa": float(qa)})
+            data.append({"active": active, "pl": float(pl), "ql": float(ql), "pa": float(pa), "qa": float(qa)})
     return data
 
 
@@ -1130,7 +1130,7 @@ def flow_calculator() -> None:
                 st.caption("공기 유량은 첨부 식의 밀도 1.2 kg/m³ 기준입니다. 카탈로그의 기준 상태가 다르면 환산 후 입력하세요. 압력은 게이지압입니다.")
             target_basis, target_value, target_air = targets(mode)
             st.markdown("<div class='subhead'>데이터시트 기준점</div>", unsafe_allow_html=True)
-            st.caption("두 기준점에서 액체 K와 공기 C를 각각 구해 평균을 적용합니다." if ("이류체" in mode) else "P1과 P2의 유효한 K값 평균으로 계산합니다.")
+            st.caption("선택한 기준점에서 액체 K와 공기 C를 구합니다. 둘 다 선택하면 각각 평균을 적용합니다." if ("이류체" in mode) else "선택한 기준점의 유효한 K값으로 계산합니다. 둘 다 선택하면 평균을 적용합니다.")
             points = reference_points(mode)
             st.button("조건 입력값 초기화", key="reset_conditions", width="stretch", on_click=reset_conditions)
 
@@ -1166,7 +1166,7 @@ def flow_calculator() -> None:
             if result["valid_count"]:
                 st.success(f"{product or '제품명 미입력'} · 기준점 {result['valid_count']}개 평균 적용")
             else:
-                st.warning("두 기준점의 압력과 유량을 0보다 크게 입력하세요.")
+                st.warning("적용할 기준점을 선택하고 해당 압력과 유량을 0보다 크게 입력하세요.")
             st.markdown("<div class='subhead'>기준점별 계산 계수</div>", unsafe_allow_html=True)
             kcols = st.columns(2)
             for i, (col, point) in enumerate(zip(kcols, result["points"], strict=True), start=1):
@@ -1206,14 +1206,13 @@ SLIT_SOURCE_IMAGES = ['iVBORw0KGgoAAAANSUhEUgAABDgAAAFECAIAAABNqhnFAAAAAXNSR0IAr
 # Keep the source constants (3.14, 0.785, 273, 9.8) to reproduce Excel results.
 CALCULATOR_CARDS = [
     ("flow", "노즐 분사량 계산기", "두 기준점으로 목표 압력의 유량 또는 목표 유량에 필요한 압력을 계산합니다."),
-    ("pipe", "배관 선정 계산기", "AIR · WATER 배관의 내경, 유속, 유량과 부속품에 따른 압력손실을 계산합니다."),
-    ("air", "압축 공기량 계산기", "노즐 구경과 압력·온도로 공기량을 계산하고 슬릿의 등가 구경을 환산합니다."),
     ("water", "물 기준 노즐 유량 계산기", "노즐 구경·압력·유량을 상호 계산하고 물의 분사 유속을 확인합니다."),
+    ("air", "압축 공기량 계산기", "노즐 구경과 압력·온도로 공기량을 계산하고 슬릿의 등가 구경을 환산합니다."),
     ("slit", "SLIT BLOWER 풍량 계산기", "풍속, 유효길이, 슬릿간격으로 풍량과 필요한 접속구 수량을 계산합니다."),
+    ("pipe", "배관 선정 계산기", "AIR · WATER 배관의 내경, 유속, 유량과 부속품에 따른 압력손실을 계산합니다."),
     ("density", "밀도·비중별 유량 계산기", "질량·부피 유량과 비중 보정 유량을 환산하고 혼합물의 밀도를 계산합니다."),
     ('layout', 'SprayLayout Pro · 노즐 배치 계산기', '분사 폭과 겹침률을 바탕으로 노즐 수량과 배치를 검토합니다.'),
     ('impact', '노즐 충격력·펌프 계산기', '노즐 충격력과 펌프 이론 계산을 시뮬레이션과 함께 확인합니다.'),
-
 ]
 
 # mode: (field key, label including unit, workbook default, minimum)
@@ -1224,7 +1223,7 @@ CALC_FIELDS = {
     "WATER · 배관 유속": [("q", "물 유량 (L/min)", 190., 0.), ("d", "배관 내경 (mm)", 51.9, 0.)],
     "WATER · 유량": [("d", "배관 내경 (mm)", 19., 0.), ("v", "배관 내 유속 (m/s)", 3., 0.)],
     "WATER · 압력손실": [("d", "배관 내경 (mm)", 13.5, 0.), ("q", "물 유량 (L/min)", 45., 0.), ("length", "직관 총 길이 (m)", 10., 0.), ("roughness", "표면조도 계수 C", 120., 0.)],
-    "원형 노즐": [("d", "노즐 구경 D (mm)", 44.6, 0.), ("p", "공기 압력", 1., 0.), ("t", "공기 온도 (°C)", 20., -272.99), ("c", "유량계수 c", 1., 0.)],
+    "솔리드 노즐": [("d", "노즐 구경 D (mm)", 44.6, 0.), ("p", "공기 압력", 1., 0.), ("t", "공기 온도 (°C)", 20., -272.99), ("c", "유량계수 c", 1., 0.)],
     "슬릿 → 등가 노즐": [("length", "슬릿 길이 (mm)", 1300., 0.), ("gap", "슬릿 폭 (mm)", 2., 0.), ("factor", "슬릿 지수 값", .6, 0.), ("p", "공기 압력", 1., 0.), ("t", "공기 온도 (°C)", 20., -272.99), ("c", "유량계수 c", 1., 0.)],
     "유량 계산": [("p", "압력 (bar · 원식 기준)", 3., 0.), ("d", "노즐 구경 (mm)", 2.3, 0.), ("c", "유량계수 C", 1., 0.)],
     "압력 계산": [("q", "목표 유량 (L/min)", 6., 0.), ("d", "노즐 구경 (mm)", 2.3, 0.), ("c", "유량계수 C", 1., 0.)],
@@ -1239,7 +1238,7 @@ CALC_FIELDS = {
 }
 CALC_MODES = {
     "pipe": list(CALC_FIELDS)[:6],
-    "air": ["원형 노즐", "슬릿 → 등가 노즐"],
+    "air": ["솔리드 노즐", "슬릿 → 등가 노즐"],
     "water": ["유량 계산", "압력 계산", "노즐 구경 계산", "압력 → 유속", "구경·유속 → 유량"],
     "slit": ["풍량·접속구 선정"],
     "density": ["질량 → 부피 유량", "부피 유량 단위 환산", "비중에 따른 유량 보정", "혼합물 밀도"],
@@ -1306,17 +1305,21 @@ def engineering_result(page: str, mode: str, a: dict[str, Any]) -> dict[str, Any
             note = "직관 길이에 나사식·용접식 부속과 밸브의 등가길이를 더합니다. 원본 표의 C 기본값은 120입니다."
         if mode.startswith("AIR"):
             metrics[1] = ("배관 내 통과 유량", a['q'], "L/min")
+            metrics.append(("시간당 통과 유량", a['q']*.06, "m³/h"))
+            atmospheric_flow = a['q'] * (a['p'] + 1.01325) / 1.01325
+            metrics.extend([("대기압 환산 유량", atmospheric_flow, "L/min"), ("시간당 대기압 환산 유량", atmospheric_flow*.06, "m³/h")])
+            formula.append(r"Q_{atm}=Q_{pipe}\frac{P_g+1.01325}{1.01325},\quad Q_{m^3/h}=0.06Q_{L/min}")
             formula.append(r"R=1,\quad Q_{pipe}=Q_{input},\quad Q=Av")
-            note = "입력 유량은 표시된 운전 게이지압에서의 실제 체적유량입니다. 압력비로 다시 나누지 않습니다. 같은 실제 유량·내경에서는 유속이 같으며, 압력은 운전 조건으로 기록합니다."
+            note = "입력 유량은 표시된 운전 게이지압에서의 실제 체적유량입니다. 압력비로 다시 나누지 않습니다. 같은 실제 유량·내경에서는 유속이 같습니다. 압력 변경은 대기압 환산 유량에 반영됩니다. 환산은 동일 온도, 이상기체, 대기압 1.01325 bar 기준입니다."
         elif "압력손실" not in mode:
             formula.append(r"R=1\quad(\mathrm{WATER})")
     elif page == "air":
         if a['t'] <= -273: raise ValueError("공기 온도는 -273°C보다 높아야 합니다.")
-        d = a['d'] if mode == "원형 노즐" else math.sqrt(a['length']*a['gap']*a['factor']*4/3.14)
+        d = a['d'] if mode == "솔리드 노즐" else math.sqrt(a['length']*a['gap']*a['factor']*4/3.14)
         p = a['p']/BAR_PER_KGF_CM2 if a.get('pressure_unit') == 'bar' else a['p']
         q = 198*.785*d*d*a['c']*(p+1.033)/math.sqrt(a['t']+273)
         metrics = [("공기 분사량", q, "L/min"), ("시간당 공기량", q*.06, "m³/h")]
-        if mode != "원형 노즐":
+        if mode != "솔리드 노즐":
             metrics.append(("등가 노즐 구경", d, "mm"))
             formula.append(r"D=\sqrt{\frac{L\times w\times k\times4}{3.14}}")
         formula.extend([r"Q=\frac{198\times0.785D^2\times c\times(P_g+1.033)}{\sqrt{t+273}}", r"Q_{m^3/h}=0.06Q_{L/min}"])
@@ -1481,7 +1484,7 @@ def engineering_pdf(title: str, mode: str, inputs: list[tuple[str, str]], result
         table.setStyle(TableStyle([('BACKGROUND',(0,0),(0,-1),colors.HexColor('#e0f2fb')), ('GRID',(0,0),(-1,-1),.4,colors.HexColor('#cbdde7')), ('VALIGN',(0,0),(-1,-1),'TOP'), ('TOPPADDING',(0,0),(-1,-1),7), ('BOTTOMPADDING',(0,0),(-1,-1),7)]))
         story.extend([table, Spacer(1, 12)])
     story.append(KeepTogether([Paragraph('입력 조건에 따른 변화', normal), Spacer(1,6), engineering_pdf_curve(page, mode, values, result), Paragraph('파란색: 계산 곡선 · 초록색: 현재 입력 조건', small)]))
-    story.extend([Spacer(1,8), Paragraph(escape(result['note']), small), Spacer(1, 8), Paragraph('계산식 출처: '+escape(source), small)])
+    story.extend([Spacer(1,8), Paragraph(escape(result['note']), small)])
     doc.build(story)
     return buf.getvalue()
 
@@ -1546,6 +1549,16 @@ def engineering_calculator(page: str) -> None:
                 input_rows.append(('접속구 구경', values['connection']))
                 st.caption(f"접속구 1개당 기본풍량: {CONNECTION_CAPACITY[values['connection']]:.2f} m³/min")
             st.button('엑셀 예시값으로 초기화', key=prefix+'_reset', width='stretch', on_click=reset_engineering, args=(prefix,))
+        if page == 'pipe':
+            fluid = 'AIR' if mode.startswith('AIR') else 'WATER'
+            st.markdown(f"### {fluid} 배관 권장 유속")
+            engineering_table([{'사용 개소':where, '유속 (m/s)':v} for kind, where, v in PIPE_VELOCITIES if kind == fluid])
+            if fluid == 'AIR':
+                st.caption('AIR 최대 허용유속: 120 m/s')
+            if mode == 'WATER · 압력손실':
+                with st.expander('부속품 등가길이 참고표'):
+                    engineering_table([{'부속품':name, **{f'{size}A':length for size, length in zip(PIPE_SIZES, lengths)}} for _, name, lengths in PIPE_FITTINGS])
+                    st.caption('등가길이 단위: m. 호칭구경과 실제 배관 내경은 다릅니다.')
     with right:
         st.markdown("<div class='workspace-head'><span>CALCULATION OUTPUT</span><h2>계산 결과</h2><p>입력값이 바뀌면 결과와 그래프가 즉시 갱신됩니다.</p></div>", unsafe_allow_html=True)
         try:
@@ -1575,22 +1588,15 @@ def engineering_calculator(page: str) -> None:
                 st.caption('파란색은 선택한 입력값에 따른 계산 결과, 초록색은 현재 조건입니다. 다른 입력값은 고정합니다.')
             with st.expander('계산 방식 확인'):
                 for formula in result['formula']: st.latex(formula)
-                st.caption('계산식 출처: '+SOURCE_NAMES[page])
             with st.container(border=True):
                 st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
                 st.download_button('PDF 리포트 다운로드', data=engineering_pdf(title, mode, input_rows, result, SOURCE_NAMES[page], page, values), file_name=f'{page}_calculation_report.pdf', mime='application/pdf', type='primary', width='stretch')
-    if page == 'pipe':
-        with st.expander('배관 권장 유속 · 부속품 등가길이 참고표'):
-            engineering_table([{'유체':fluid, '사용 개소':where, '유속 (m/s)':v} for fluid, where, v in PIPE_VELOCITIES])
-            st.caption('AIR 최대 허용유속: 120 m/s (첨부 자료 기준). 호칭구경과 실제 배관 내경은 다릅니다.')
-            engineering_table([{'부속품':name, **{f'{size}A':length for size, length in zip(PIPE_SIZES, lengths)}} for _, name, lengths in PIPE_FITTINGS])
-            st.caption('등가길이 단위: m. 빈 값은 원본 미제공입니다.')
-    elif page == 'air':
+    if page == 'air':
         with st.expander('노즐 구경·압력별 공기량 참고표'):
             pressures = [.7, 1., 1.5, 2., 2.5, 3., 4., 5., 7., 10.]
             st.caption(f"현재 온도 {values['t']:.2f}°C와 유량계수 {values['c']:.2f} 적용 · 압력 단위 {values['pressure_unit']} · 유량 L/min")
             if values['t'] > -273:
-                engineering_table([{'구경 (mm)':d, **{f'{p:.2f}':round(engineering_result('air','원형 노즐',dict(values,d=d,p=p))['metrics'][0][1],2) for p in pressures}} for d in AIR_REFERENCE_DIAMETERS])
+                engineering_table([{'구경 (mm)':d, **{f'{p:.2f}':round(engineering_result('air','솔리드 노즐',dict(values,d=d,p=p))['metrics'][0][1],2) for p in pressures}} for d in AIR_REFERENCE_DIAMETERS])
     elif page == 'slit':
         with st.expander('용도별 풍속·슬릿간격 / 접속구 선정 기준', expanded=True):
             engineering_table([{'용도':name, '풍속 (m/s)':speed, '슬릿간격 (mm)':gap} for name, speed, gap in SLIT_APPLICATIONS])
