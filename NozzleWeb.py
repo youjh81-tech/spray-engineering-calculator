@@ -725,7 +725,7 @@ def header() -> None:
         f"""<div class="site-head"><a class="brand" href="{SITE_URL}" target="_blank" rel="noopener noreferrer">
         <img src="{LOGO_DATA_URI}" alt="Spraying Systems Co. 공식 로고" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'">
         <span class="brand-fallback">SPRAYING SYSTEMS CO.</span><small>스프레이시스템코리아 공식 홈페이지 ↗</small></a>
-        <div class="app-id"><strong>Spray Engineering Calculator</strong><span>INDEPENDENT ENGINEERING TOOL</span></div></div>""",
+        <div class="app-id"><strong>Spray Engineering Calculator</strong><span>No.1 SPRAY SOLUTION PROVIDER</span></div></div>""",
         unsafe_allow_html=True,
     )
 
@@ -1645,6 +1645,11 @@ def embedded_calculator(page: str) -> None:
 
 
 def home() -> None:
+    st.markdown("""<style>
+[data-testid="stToolbar"],[data-testid="stToolbarActions"],[data-testid="stAppDeployButton"]{display:none!important}
+.menu-card .card-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.menu-card .card-author{color:#294a61;font-size:.88rem;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+</style>""", unsafe_allow_html=True)
     header()
     st.markdown('''<section class="hero"><div><div class="eyebrow">SPRAY ENGINEERING WORKSPACE</div>
     <h1>Spray Engineering<br>Calculator</h1><p>현장 조건에 맞는 계산기를 선택하고 필요한 운전값을 빠르게 검토하세요.</p></div></section>
@@ -1658,7 +1663,8 @@ def home() -> None:
             with col:
                 if i < len(CALCULATOR_CARDS):
                     page, title, copy = CALCULATOR_CARDS[i]
-                    st.markdown(f"<div class='menu-card'><div class='num'>{i+1:02d} · AVAILABLE</div><h3>{title}</h3><p>{copy}</p><span class='pill'>사용 가능</span></div>", unsafe_allow_html=True)
+                    author = 'By TONY' if page == 'layout' else 'By BEN' if page == 'impact' else ''
+                    st.markdown(f"<div class='menu-card'><div class='num'>{i+1:02d} · AVAILABLE</div><h3>{title}</h3><p>{copy}</p><div class='card-bottom'><span class='pill'>사용 가능</span><span class='card-author'>{author}</span></div></div>", unsafe_allow_html=True)
                     st.button(f'{title} 열기 →', key='open_'+page, type='primary', width='stretch', on_click=go, args=(page,))
                 else:
                     st.markdown(f"<div class='menu-card pending' aria-label='{i+1}번 빈 계산기 공간'><div class='num'>{i+1:02d}</div><h3>&nbsp;</h3><p>&nbsp;</p></div>", unsafe_allow_html=True)
