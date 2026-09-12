@@ -1616,7 +1616,20 @@ def embedded_calculator(page: str) -> None:
 [data-testid="stMainBlockContainer"] iframe{width:100%!important;height:calc(100dvh - 54px)!important;min-height:500px;border:0!important}
 </style>""", unsafe_allow_html=True)
         st.button('← 계산기 목록', on_click=go, args=('home',))
-        components.html(html_bytes.decode('utf-8-sig'), height=1000, scrolling=True)
+        html = html_bytes.decode('utf-8-sig')
+        # Keep the original footer content, but reserve its own space after the page.
+        footer_style = """<style>
+@media screen {
+  html {min-height:100%;}
+  body {min-height:100vh;display:flex;flex-direction:column;}
+  body > .wrap {width:100%;flex:1 0 auto;}
+  .footer {position:static!important;inset:auto!important;flex:0 0 auto;
+    margin-top:auto;width:100%;height:auto!important;min-height:42px;
+    padding-top:8px;padding-bottom:8px;flex-wrap:wrap;}
+}
+</style>"""
+        html = html.replace('</head>', footer_style + '</head>', 1)
+        components.html(html, height=1000, scrolling=True)
         return
     index = 7 if page == 'layout' else 8
     _, title, description = CALCULATOR_CARDS[index-1]
