@@ -1243,7 +1243,7 @@ CALCULATOR_CARDS = [
     ("density", "밀도·비중별 유량 계산기", "질량·부피 유량과 비중 보정 유량을 환산하고 혼합물의 밀도를 계산합니다."),
     ('layout', 'SprayLayout Pro · 노즐 배치 계산기', '분사 폭과 겹침률을 바탕으로 노즐 수량과 배치를 검토합니다.'),
     ('impact', '노즐 충격력·펌프 계산기', '노즐 충격력과 펌프 이론 계산을 시뮬레이션과 함께 확인합니다.'),
-    ('auxiliary', '단위 환산·삼각함수 보조 계산기', '압력·유량·온도·질량·체적 환산과 노즐 높이·분사각에 따른 커버리지를 계산합니다.'),
+    ('auxiliary', '노즐 현장 보조 계산기', '도포량·마모율·간헐 분사, 단위 환산과 노즐 커버리지를 계산합니다.'),
 ]
 
 # mode: (field key, label including unit, workbook default, minimum)
@@ -1819,24 +1819,83 @@ def nozzle_triangle(mode: str, height: float, angle: float, coverage: float) -> 
     return height,angle,coverage
 
 
+def spray_aux_result(kind: str, a: dict) -> list:
+    if any(not math.isfinite(v) or v < 0 for v in a.values()): raise ValueError('0 이상의 유효한 숫자를 입력하세요.')
+    if kind == 'coating':
+        if min(a['speed'],a['width'],a['rho'],a['efficiency']) <= 0: raise ValueError('속도·폭·밀도·도포 효율은 0보다 커야 합니다.')
+        area=a['speed']*a['width']/1000
+        deposited=a['flow']*1000*a['efficiency']/100
+        return [('면적당 도포량',deposited/area,'mL/m²'),('면적당 도포 질량',deposited/area*a['rho']/1000,'g/m²'),('분당 처리 면적',area,'m²/min')]
+    if kind == 'target':
+        if min(a['speed'],a['width'],a['rho'],a['efficiency']) <= 0: raise ValueError('속도·폭·밀도·도포 효율은 0보다 커야 합니다.')
+        ml=a['target'] if a['mass_basis']==0 else a['target']*1000/a['rho']
+        q=ml*(a['speed']*a['width']/1000)/1000/(a['efficiency']/100)
+        return [('필요 총 분사 유량',q,'L/min'),('시간당 분사량',q*60,'L/h')]
+    if kind == 'wear':
+        if a['reference']<=0: raise ValueError('기준 유량은 0보다 커야 합니다.')
+        delta=a['measured']-a['reference'];extra=max(0.,delta)*a['count']*60*a['hours']
+        return [('기준 대비 유량 변화율',delta/a['reference']*100,'%'),('노즐당 유량 차이',delta,'L/min'),('전체 추가 사용량',extra,'L/일'),('연간 추가 사용량',extra*a['days'],'L/년')]
+    if a['on']+a['off']<=0: raise ValueError('ON 시간과 OFF 시간의 합은 0보다 커야 합니다.')
+    duty=a['on']/(a['on']+a['off']);total=a['flow']*a['count']
+    return [('듀티비',duty*100,'%'),('평균 총 유량',total*duty,'L/min'),('시간당 사용량',total*duty*60,'L/h'),('1회 분사량',total*a['on']/60*1000,'mL/회'),('시간당 분사 횟수',3600/(a['on']+a['off']),'회/h')]
+
+
+def spray_aux_panel(kind: str) -> None:
+    if kind=='coating':
+        mode=st.radio('계산 방향',['유량 → 도포량','목표 도포량 → 필요 유량'],horizontal=True,key='coat_direction')
+        fields=[('speed','라인 속도 (m/min)',10.),('width','유효 도포 폭 (mm)',1000.),('rho','액체 밀도 (kg/m³)',1000.),('efficiency','도포 효율 (%)',100.)]
+        if mode=='유량 → 도포량': fields.insert(0,('flow','노즐 전체 분사 유량 (L/min)',1.))
+        else:
+            basis=st.radio('목표 도포량 단위',['mL/m²','g/m²'],horizontal=True,key='coat_basis')
+            fields.insert(0,('target','목표 도포량 ('+basis+')',100.))
+        note='전체 노즐의 합계 유량을 입력하세요. 균일한 도포를 가정하며 도포 효율은 분사량 중 대상면에 도달하는 비율입니다. 100%는 전량 도달하는 이론 조건입니다.'
+    elif kind=='wear':
+        fields=[('reference','새 노즐 기준 유량 (L/min·개)',1.),('measured','현재 측정 유량 (L/min·개)',1.1),('count','노즐 수 (개)',10.),('hours','하루 실제 분사 시간 (h/일)',8.),('days','연간 가동일 (일/년)',250.)]
+        note='동일한 압력·유체·온도에서 비교하세요. 유량 증가율은 마모 판단의 참고 지표이며 마모를 확정하지 않습니다. 감소하면 막힘·압력 등도 확인하세요. 추가 사용량은 증가분만 계산합니다.'
+    else:
+        fields=[('flow','ON 상태 노즐당 유량 (L/min)',1.),('count','노즐 수 (개)',1.),('on','ON 분사 시간 (초)',1.),('off','OFF 정지 시간 (초)',1.)]
+        note='ON/OFF 주기가 반복되고 모든 노즐이 동시에 작동한다고 가정합니다. 1회 분사량은 제품 1개당 분사 1회일 때 제품당 사용량과 같습니다. 밸브 응답 지연은 제외합니다.'
+    left,right=st.columns(2);a={}
+    with left:
+        for key,label,default in fields:
+            limit=100. if key=='efficiency' else 24. if key=='hours' else 366. if key=='days' else None
+            a[key]=st.number_input(label,min_value=0.,max_value=limit,value=default,step=1. if key in ('count','days') else .01,format='%.2f',key='spray_'+kind+'_'+key)
+        st.caption(note)
+    with right:
+        try:
+            for key in ('count','days'):
+                if key in a and not a[key].is_integer(): raise ValueError('노즐 수와 가동일은 정수로 입력하세요.')
+            if 'count' in a and a['count']<1: raise ValueError('노즐 수는 1개 이상이어야 합니다.')
+            calc=kind
+            if kind=='coating' and mode!='유량 → 도포량': calc='target';a['mass_basis']=float(basis=='g/m²')
+            rows=spray_aux_result(calc,a)
+            if any(not math.isfinite(value) for _,value,_ in rows): raise ValueError('입력값이 계산 범위를 벗어났습니다.')
+            for label,value,unit in rows: st.metric(label,f'{value:,.2f} {unit}')
+            if kind=='wear' and a['measured']<a['reference']: st.info('측정 유량이 기준보다 작습니다. 추가 사용량은 0.00으로 표시합니다.')
+        except (ValueError,OverflowError) as e: st.warning(str(e))
+
+
 def auxiliary_calculator() -> None:
     header()
     st.button('← 계산기 목록',on_click=go,args=('home',))
-    st.markdown('<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 09</span><h1>단위 환산·삼각함수 보조 계산기</h1><p>단위를 환산하거나 노즐 높이·전체 분사각·커버리지의 관계를 확인하세요.</p></div></section>',unsafe_allow_html=True)
+    st.markdown('<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 09</span><h1>노즐 현장 보조 계산기</h1><p>도포량·마모율·간헐 분사를 계산하고 단위 환산과 노즐 커버리지를 확인하세요.</p></div></section>',unsafe_allow_html=True)
     st.markdown('''<style>[data-testid="stTabs"] [role="tab"]{padding:12px 20px!important;height:auto!important;border:1px solid #7195ae!important;border-radius:6px;background:#e3edf5!important;color:#163c56!important}[data-testid="stTabs"] [role="tab"][aria-selected="true"]{background:#006da6!important;color:white!important}[data-testid="stTabs"] [role="tab"] p{color:inherit!important;font-weight:700}</style>''',unsafe_allow_html=True)
-    units,triangle=st.tabs(['① 단위 환산','② 삼각함수·노즐 커버리지'])
+    coating,wear,pulse,units,triangle=st.tabs(['① 도포량','② 마모율·과다 사용량','③ 간헐 분사·듀티비','④ 단위 환산','⑤ 삼각함수·노즐 커버리지'])
+    with coating: spray_aux_panel('coating')
+    with wear: spray_aux_panel('wear')
+    with pulse: spray_aux_panel('pulse')
     with units:
         category=st.selectbox('환산 항목',list(AUX_UNITS),key='aux_category')
         choices=list(AUX_UNITS[category]);left,right=st.columns(2)
         with left:
             source=st.selectbox('입력 단위',choices,key='aux_from_'+category)
-            value=st.number_input('입력값',value=1.,format='%.6f',key='aux_value_'+category)
+            value=st.number_input('입력값',value=1.,format='%.2f',key='aux_value_'+category)
         with right:
             target=st.selectbox('결과 단위',choices,index=1,key='aux_to_'+category)
             try:
                 result=auxiliary_convert(category,value,source,target)
-                st.metric('환산 결과',f'{result:,.6g} {target}')
-                st.caption(f'{value:,.10g} {source} = {result:,.10g} {target}')
+                st.metric('환산 결과',f'{result:,.2f} {target}')
+                st.caption(f'{value:,.2f} {source} = {result:,.2f} {target}')
             except ValueError as e: st.warning(str(e))
         if category=='압력': st.caption('단위만 환산합니다. 게이지압과 절대압 사이의 기준압 보정은 하지 않습니다.')
         if category=='유량': st.caption('체적 유량 단위 환산입니다. 기체의 압력·온도 및 표준상태(NL, SCFM) 보정은 포함하지 않습니다.')
@@ -1865,7 +1924,7 @@ def auxiliary_calculator() -> None:
             theta=st.number_input('각도 (°)',value=30.,format='%.2f',key='aux_trig_angle')
             radians=math.radians(theta%360);c=math.cos(radians)
             cols=st.columns(3)
-            for col,label,value in zip(cols,['sin','cos','tan'],[f'{math.sin(radians):.6f}',f'{c:.6f}','정의되지 않음' if abs(c)<1e-12 else f'{math.tan(radians):.6f}']):
+            for col,label,value in zip(cols,['sin','cos','tan'],[f'{math.sin(radians):.2f}',f'{c:.2f}','정의되지 않음' if abs(c)<1e-12 else f'{math.tan(radians):.2f}']):
                 with col: st.metric(label,value)
     footer()
 
