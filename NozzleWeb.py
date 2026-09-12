@@ -1215,8 +1215,8 @@ CALCULATOR_CARDS = [
 
 # mode: (field key, label including unit, workbook default, minimum)
 CALC_FIELDS = {
-    "AIR · 배관 내경": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 운전 게이지압 기준)", 1000., 0.), ("v", "배관 내 유속 (m/s)", 20., 0.)],
-    "AIR · 배관 유속": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 운전 게이지압 기준)", 1000., 0.), ("d", "배관 내경 (mm)", 16.5, 0.)],
+    "AIR · 배관 내경": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 압력 보정 전)", 1000., 0.), ("v", "배관 내 유속 (m/s)", 20., 0.)],
+    "AIR · 배관 유속": [("p", "압력 (bar · 게이지압)", 3., 0.), ("q", "공기 유량 (L/min · 압력 보정 전)", 1000., 0.), ("d", "배관 내경 (mm)", 16.5, 0.)],
     "WATER · 배관 내경": [("q", "물 유량 (L/min)", 45., 0.), ("v", "배관 내 유속 (m/s)", 3., 0.)],
     "WATER · 배관 유속": [("q", "물 유량 (L/min)", 190., 0.), ("d", "배관 내경 (mm)", 51.9, 0.)],
     "WATER · 유량": [("d", "배관 내경 (mm)", 19., 0.), ("v", "배관 내 유속 (m/s)", 3., 0.)],
@@ -1277,9 +1277,8 @@ def engineering_result(page: str, mode: str, a: dict[str, Any]) -> dict[str, Any
     formula: list[str] = []
     note = ""
     if page == "pipe":
-        # AIR Q is already the actual volume at the stated operating pressure.
-        # Do not compress it a second time. WATER retains its original R=1.
-        ratio = 1.
+        # Match the supplied pipe workbook M3/M7, including its pressure constant.
+        ratio = (a["p"] + 1.033) / 1.033 if mode.startswith("AIR") else 1.
         if mode.endswith("배관 내경"):
             v = positive("v", "유속")
             d = math.sqrt(a['q'] * 1000 / v / 60 / ratio * 4 / 3.14)
@@ -1302,10 +1301,10 @@ def engineering_result(page: str, mode: str, a: dict[str, Any]) -> dict[str, Any
             formula = [r"\Delta P=\frac{6.174\times Q^{1.85}\times10^5\times L_{total}}{C^{1.85}\times D^{4.87}}", r"L_{total}=L+L_{thread}+L_{weld}+L_{valve}"]
             note = "직관 길이에 나사식·용접식 부속과 밸브의 등가길이를 더합니다. 원본 표의 C 기본값은 120입니다."
         if mode.startswith("AIR"):
-            metrics[1] = ("배관 내 통과 유량", a['q'], "L/min")
-            metrics.append(("시간당 통과 유량", a['q']*.06, "m³/h"))
-            formula.append(r"R=1,\quad Q_{pipe}=Q_{input},\quad Q=Av")
-            note = "입력 유량은 표시된 운전 게이지압에서의 실제 체적유량입니다. 압력비로 다시 나누지 않습니다. 같은 실제 유량·내경에서는 유속이 같습니다."
+            metrics[1] = ("배관 내 통과 유량", a['q']/ratio, "L/min")
+            metrics.append(("시간당 통과 유량", a['q']/ratio*.06, "m³/h"))
+            formula.append(r"R=\frac{P+1.033}{1.033},\quad Q_{pipe}=Q_{input}/R")
+            note = "입력 공기량에 (압력 + 1.033) / 1.033 보정을 적용합니다. 압력이 높아지면 계산된 통과 유량과 필요 내경 또는 유속이 감소합니다. 첨부 배관식의 상수 1.033을 그대로 적용합니다."
         elif "압력손실" not in mode:
             formula.append(r"R=1\quad(\mathrm{WATER})")
     elif page == "air":
@@ -1696,17 +1695,25 @@ def density_calculator() -> None:
 .st-key-density_sheet [data-testid="stMetric"]{background:#dedede!important;padding:12px;border:1px solid #a5a5a5;min-height:100px}
 .st-key-density_sheet [data-testid="stMetric"] *{color:#142f42!important;-webkit-text-fill-color:#142f42!important}
 .st-key-density_sheet [data-testid="stMetricValue"]{font-size:25px}
+.st-key-density_sheet [role="tablist"]{gap:12px;height:auto!important;padding:8px 0 16px;flex-wrap:wrap}
+.st-key-density_sheet [role="tab"]{background:#e3edf5!important;border:2px solid #718da4!important;border-radius:8px!important;padding:16px 24px!important;height:auto!important;min-height:58px;color:#163c56!important}
+.st-key-density_sheet [role="tab"] p{font-size:19px!important;font-weight:700!important;color:inherit!important;-webkit-text-fill-color:inherit!important}
+.st-key-density_sheet [role="tab"][aria-selected="true"]{background:#006da6!important;color:#fff!important;border-color:#006da6!important}
+
 </style>''', unsafe_allow_html=True)
+    st.markdown('### 아래에서 사용할 계산식을 선택하세요')
     with st.container(key='density_sheet'):
         tab1,tab2=st.tabs(['① 유량 단위·비중 환산','② 혼합물 밀도'])
         with tab1:
-            st.caption('각 행의 노란 입력값으로 해당 행의 결과를 계산합니다. 세 행은 개별 입력으로 관리합니다.')
+            st.info('1 → 2 → 3 순서로 계산하세요. 1단계의 Vol. Liquid Flow Rate (m³/h)를 2단계의 Liquid Flow Rate (m³/h)에 입력하고, 2단계 결과 Liquid Flow Rate (L/min)를 3단계 입력에 넣으면 최종 Water Flow Rate (L/min)가 계산됩니다. 단계 간 값은 직접 옮겨 입력하며, 자동으로 복사되지 않습니다.')
             sections=[]; valid=True
             definitions=[('1. 무게 단위를 부피 단위로 변환','질량 → 부피 유량',[('mass','Liquid Flow Rate (kg/h)',3500.),('rho','Density (kg/m³)',925.)],'Vol. Liquid Flow Rate (m³/h)','부피 유량 (m³/h) = 질량 유량 (kg/h) / 밀도 (kg/m³)'),
                          ('2. 부피 단위 환산','부피 유량 단위 환산',[('volume','Liquid Flow Rate (m³/h)',3.78)],'Liquid Flow Rate (L/min)','유량 (L/min) = 유량 (m³/h) × 1000 / 60'),
                          ('3. 비중에 따른 유량 변환 (Liquid → Water)','비중에 따른 유량 보정',[('q','Liquid Flow Rate (L/min)',63.),('rho','Density (kg/m³)',925.)],'Water Flow Rate (L/min)','비중 = 밀도 / 1000; 물 기준 유량 = 액체 유량 × √비중')]
             for i,(title,mode,fields,output,formula) in enumerate(definitions):
                 st.subheader(title);st.caption(formula)
+                if i == 1: st.markdown('🔴 1단계의 **Vol. Liquid Flow Rate (m³/h)** 결과를 아래 입력칸에 넣으세요.')
+                if i == 2: st.markdown('🔵 2단계의 **Liquid Flow Rate (L/min)** 결과를 아래 입력칸에 넣으세요. 동일 유체의 밀도를 적용합니다.')
                 cols=st.columns(len(fields)+1);values={};row=[]
                 for col,(key,label,default) in zip(cols,fields):
                     with col: values[key]=st.number_input(label,min_value=0.,value=default,step=.01,format='%.2f',key=f'density_form_{i}_{key}')
