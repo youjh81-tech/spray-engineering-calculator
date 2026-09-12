@@ -1613,24 +1613,35 @@ def embedded_calculator(page: str) -> None:
 [data-testid="stMainBlockContainer"]{max-width:none!important;padding:0!important}
 [data-testid="stHeader"],#MainMenu{display:none!important}
 [data-testid="stMainBlockContainer"]>div{gap:0!important}
-[data-testid="stElementContainer"]:has(> iframe[data-testid="stIFrame"]){height:calc(100dvh - 40px)!important;flex:0 0 calc(100dvh - 40px)!important;min-height:0!important;max-height:calc(100dvh - 40px)!important}
-[data-testid="stMainBlockContainer"] iframe{display:block;width:100%!important;height:100%!important;min-height:0!important;border:0!important}
 </style>""", unsafe_allow_html=True)
         st.button('← 계산기 목록', on_click=go, args=('home',))
+        # Original logic and layout; only put the footer after the document.
+        # A fixed footer creates a feedback loop when an iframe sizes to content.
         html = html_bytes.decode('utf-8-sig')
-        # Keep the original footer content, but reserve its own space after the page.
-        footer_style = """<style>
-@media screen {
-  html {min-height:100%;}
-  body {min-height:100vh;display:flex;flex-direction:column;}
-  body > .wrap {width:100%;flex:1 0 auto;}
-  .footer {position:static!important;inset:auto!important;flex:0 0 auto;
-    margin-top:auto;width:100%;height:auto!important;min-height:42px;
-    padding-top:8px;padding-bottom:8px;flex-wrap:wrap;}
-}
-</style>"""
-        html = html.replace('</head>', footer_style + '</head>', 1)
-        components.html(html, height=1000, scrolling=True)
+        html = html.replace('</head>', '<style>@media screen{.footer{position:static!important;height:auto!important;min-height:42px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}}</style></head>', 1)
+        # Streamlit 1.63's built-in measurement includes the previous viewport
+        # height, which cannot shrink after a narrow-screen layout. Measure the
+        # original document body instead, without changing its UI or handlers.
+        html += """<script>
+(() => {
+  let pending = false;
+  const resize = () => {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      const body = document.body;
+      window.parent.postMessage({type: 'streamlit:iframe:setSize',
+        width: Math.ceil(body.getBoundingClientRect().width),
+        height: Math.ceil(Math.max(body.getBoundingClientRect().height, body.scrollHeight))}, '*');
+    });
+  };
+  new ResizeObserver(resize).observe(document.body);
+  window.addEventListener('load', resize);
+  window.addEventListener('resize', resize);
+})();
+</script>"""
+        st.iframe(html, height='content', width='stretch')
         return
     index = 7 if page == 'layout' else 8
     _, title, description = CALCULATOR_CARDS[index-1]
