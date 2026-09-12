@@ -1020,9 +1020,7 @@ def targets(mode: str) -> tuple[str, float, float]:
             st.slider(f"액체 유량 빠른 조정 ({unit})", 0.0, 1000.0, step=.10, key="target_flow_slider", on_change=sync, args=("target_flow_slider", "target_flow_input"), **initial_widget_value("target_flow_slider"))
     else:
         with a:
-            target_value = st.number_input("목표 액체 압력 (bar)", min_value=0.0, max_value=10.0, step=.01, format="%.2f", key="target_liquid_input", on_change=sync, args=("target_liquid_input", "target_liquid_slider"), **initial_widget_value("target_liquid_input"))
-        with b:
-            st.slider("액체 압력 빠른 조정", 0.0, 10.0, step=.05, key="target_liquid_slider", on_change=sync, args=("target_liquid_slider", "target_liquid_input"), **initial_widget_value("target_liquid_slider"))
+            target_value = st.number_input("목표 액체 압력 (bar)", min_value=0.0, step=.01, format="%.2f", key="target_liquid_input", **initial_widget_value("target_liquid_input"))
     air = float(st.session_state.get("target_air_input", DEFAULTS["target_air_input"]))
     if ("이류체" in mode):
         a, b = st.columns([1, 2.1])
@@ -1306,11 +1304,8 @@ def engineering_result(page: str, mode: str, a: dict[str, Any]) -> dict[str, Any
         if mode.startswith("AIR"):
             metrics[1] = ("배관 내 통과 유량", a['q'], "L/min")
             metrics.append(("시간당 통과 유량", a['q']*.06, "m³/h"))
-            atmospheric_flow = a['q'] * (a['p'] + 1.01325) / 1.01325
-            metrics.extend([("대기압 환산 유량", atmospheric_flow, "L/min"), ("시간당 대기압 환산 유량", atmospheric_flow*.06, "m³/h")])
-            formula.append(r"Q_{atm}=Q_{pipe}\frac{P_g+1.01325}{1.01325},\quad Q_{m^3/h}=0.06Q_{L/min}")
             formula.append(r"R=1,\quad Q_{pipe}=Q_{input},\quad Q=Av")
-            note = "입력 유량은 표시된 운전 게이지압에서의 실제 체적유량입니다. 압력비로 다시 나누지 않습니다. 같은 실제 유량·내경에서는 유속이 같습니다. 압력 변경은 대기압 환산 유량에 반영됩니다. 환산은 동일 온도, 이상기체, 대기압 1.01325 bar 기준입니다."
+            note = "입력 유량은 표시된 운전 게이지압에서의 실제 체적유량입니다. 압력비로 다시 나누지 않습니다. 같은 실제 유량·내경에서는 유속이 같습니다."
         elif "압력손실" not in mode:
             formula.append(r"R=1\quad(\mathrm{WATER})")
     elif page == "air":
@@ -1549,16 +1544,12 @@ def engineering_calculator(page: str) -> None:
                 input_rows.append(('접속구 구경', values['connection']))
                 st.caption(f"접속구 1개당 기본풍량: {CONNECTION_CAPACITY[values['connection']]:.2f} m³/min")
             st.button('엑셀 예시값으로 초기화', key=prefix+'_reset', width='stretch', on_click=reset_engineering, args=(prefix,))
-        if page == 'pipe':
+        if page == 'pipe' and mode != 'WATER · 압력손실':
             fluid = 'AIR' if mode.startswith('AIR') else 'WATER'
             st.markdown(f"### {fluid} 배관 권장 유속")
             engineering_table([{'사용 개소':where, '유속 (m/s)':v} for kind, where, v in PIPE_VELOCITIES if kind == fluid])
             if fluid == 'AIR':
                 st.caption('AIR 최대 허용유속: 120 m/s')
-            if mode == 'WATER · 압력손실':
-                with st.expander('부속품 등가길이 참고표'):
-                    engineering_table([{'부속품':name, **{f'{size}A':length for size, length in zip(PIPE_SIZES, lengths)}} for _, name, lengths in PIPE_FITTINGS])
-                    st.caption('등가길이 단위: m. 호칭구경과 실제 배관 내경은 다릅니다.')
     with right:
         st.markdown("<div class='workspace-head'><span>CALCULATION OUTPUT</span><h2>계산 결과</h2><p>입력값이 바뀌면 결과와 그래프가 즉시 갱신됩니다.</p></div>", unsafe_allow_html=True)
         try:
@@ -1591,6 +1582,11 @@ def engineering_calculator(page: str) -> None:
             with st.container(border=True):
                 st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
                 st.download_button('PDF 리포트 다운로드', data=engineering_pdf(title, mode, input_rows, result, SOURCE_NAMES[page], page, values), file_name=f'{page}_calculation_report.pdf', mime='application/pdf', type='primary', width='stretch')
+    if page == 'pipe' and mode == 'WATER · 압력손실':
+        st.markdown('### 부속품 등가길이 참고표')
+        st.markdown('<style>.engineering-table-wrap{max-height:none}.engineering-table th,.engineering-table td{white-space:normal;min-width:64px}.engineering-table th:first-child,.engineering-table td:first-child{min-width:180px}</style>', unsafe_allow_html=True)
+        engineering_table([{'부속품':name, **{f'{size}A':length for size, length in zip(PIPE_SIZES, lengths)}} for _, name, lengths in PIPE_FITTINGS])
+        st.caption('등가길이 단위: m. 호칭구경과 실제 배관 내경은 다릅니다. 좁은 화면에서는 표를 좌우로 이동할 수 있습니다.')
     if page == 'air':
         with st.expander('노즐 구경·압력별 공기량 참고표'):
             pressures = [.7, 1., 1.5, 2., 2.5, 3., 4., 5., 7., 10.]
@@ -1662,6 +1658,91 @@ def embedded_calculator(page: str) -> None:
     footer()
 
 
+def density_report(title: str, sections: list) -> bytes:
+    from html import escape
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+    pdfmetrics.registerFont(UnicodeCIDFont('HYSMyeongJo-Medium'))
+    style = ParagraphStyle('density', fontName='HYSMyeongJo-Medium', fontSize=9, leading=14)
+    heading = ParagraphStyle('densityTitle', parent=style, fontSize=19, leading=26)
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=38, rightMargin=38, topMargin=38, bottomMargin=38, title=title)
+    story = [Paragraph(title, heading), Spacer(1,12), Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), style), Paragraph('노란색: 입력값 / 회색: 계산 결과', style), Spacer(1,22)]
+    for name, formula, rows in sections:
+        block = [Paragraph(name, heading), Spacer(1,8), Paragraph(escape(formula), style), Spacer(1,12)]
+        cells = [[Paragraph(escape(str(text)).replace('\n','<br/>'),style) for text,kind in row] for row in rows]
+        table = Table(cells, colWidths=[(A4[0]-76)/len(rows[0])]*len(rows[0]))
+        styles = [('GRID',(0,0),(-1,-1),.7,colors.black),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),12),('BOTTOMPADDING',(0,0),(-1,-1),12)]
+        for y,row in enumerate(rows):
+            for x,(text,kind) in enumerate(row):
+                styles.append(('BACKGROUND',(x,y),(x,y),colors.HexColor({'input':'#fff600','output':'#dedede','label':'#fce9d9'}[kind])))
+        table.setStyle(TableStyle(styles));block.extend([table,Spacer(1,30)]);story.append(KeepTogether(block))
+    story += [Paragraph('유체 온도 및 점도, 혼합 시 부피 변화에 따라 실제 결과가 달라질 수 있습니다.',style),Spacer(1,18),Paragraph('Powered by Spraying Systems Korea 기술영업부 유재환 수석 jhyou@spray.co.kr',style)]
+    doc.build(story)
+    return buf.getvalue()
+
+
+def density_calculator() -> None:
+    header()
+    st.button('← 계산기 목록', on_click=go, args=('home',))
+    st.markdown('<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 06</span><h1>밀도·비중별 유량 계산기</h1><p>노란색은 입력값, 회색은 계산 결과입니다. 두 양식은 각각 계산하고 PDF로 저장합니다.</p></div></section>', unsafe_allow_html=True)
+    st.markdown('''<style>
+.st-key-density_sheet [data-testid="stNumberInputContainer"],.st-key-density_sheet input{background:#fff600!important;color:#142f42!important;-webkit-text-fill-color:#142f42!important;color-scheme:light}
+.st-key-density_sheet [data-testid="stNumberInput"] label{background:#fce9d9;padding:8px;width:100%;color:#142f42!important}
+.st-key-density_sheet [data-testid="stMetric"]{background:#dedede!important;padding:12px;border:1px solid #a5a5a5;min-height:100px}
+.st-key-density_sheet [data-testid="stMetric"] *{color:#142f42!important;-webkit-text-fill-color:#142f42!important}
+.st-key-density_sheet [data-testid="stMetricValue"]{font-size:25px}
+</style>''', unsafe_allow_html=True)
+    with st.container(key='density_sheet'):
+        tab1,tab2=st.tabs(['① 유량 단위·비중 환산','② 혼합물 밀도'])
+        with tab1:
+            st.caption('각 행의 노란 입력값으로 해당 행의 결과를 계산합니다. 세 행은 개별 입력으로 관리합니다.')
+            sections=[]; valid=True
+            definitions=[('1. 무게 단위를 부피 단위로 변환','질량 → 부피 유량',[('mass','Liquid Flow Rate (kg/h)',3500.),('rho','Density (kg/m³)',925.)],'Vol. Liquid Flow Rate (m³/h)','부피 유량 (m³/h) = 질량 유량 (kg/h) / 밀도 (kg/m³)'),
+                         ('2. 부피 단위 환산','부피 유량 단위 환산',[('volume','Liquid Flow Rate (m³/h)',3.78)],'Liquid Flow Rate (L/min)','유량 (L/min) = 유량 (m³/h) × 1000 / 60'),
+                         ('3. 비중에 따른 유량 변환 (Liquid → Water)','비중에 따른 유량 보정',[('q','Liquid Flow Rate (L/min)',63.),('rho','Density (kg/m³)',925.)],'Water Flow Rate (L/min)','비중 = 밀도 / 1000; 물 기준 유량 = 액체 유량 × √비중')]
+            for i,(title,mode,fields,output,formula) in enumerate(definitions):
+                st.subheader(title);st.caption(formula)
+                cols=st.columns(len(fields)+1);values={};row=[]
+                for col,(key,label,default) in zip(cols,fields):
+                    with col: values[key]=st.number_input(label,min_value=0.,value=default,step=.01,format='%.2f',key=f'density_form_{i}_{key}')
+                    row.extend([(label,'label'),(f'{values[key]:,.2f}','input')])
+                try: result=engineering_result('density',mode,values);number=result['metrics'][0][1]
+                except (ValueError,OverflowError) as e:
+                    valid=False;number=None;st.warning(str(e))
+                with cols[-1]: st.metric(output,'—' if number is None else f'{number:,.2f}')
+                row.extend([(output,'label'),('—' if number is None else f'{number:,.2f}','output')]);sections.append((title,formula,[row]));st.divider()
+            if valid:
+                st.download_button('유량 단위·비중 환산 PDF 다운로드',density_report('유량 단위·비중 환산',sections),file_name='density_flow_report.pdf',mime='application/pdf',key='density_flow_pdf')
+        with tab2:
+            st.subheader('혼합물 밀도 구하는 계산식')
+            formula='혼합물 밀도 = (v1 × d1 + v2 × d2) / (v1 + v2) = 총 질량 유량 / 총 부피 유량'
+            st.caption(formula);st.caption('A 용액: 밀도 d1, 부피 유량 v1 = 질량 유량 / d1 · B 용액: 밀도 d2, 부피 유량 v2 = 질량 유량 / d2')
+            vals={};rows=[]
+            for tag,rho,mass in [('A',830.,10000.),('B',740.,4500.)]:
+                cols=st.columns([.7,1,1])
+                with cols[0]: st.markdown(f'### {tag} 용액')
+                with cols[1]: vals['rho_'+tag.lower()]=st.number_input(f'{tag} Density (kg/m³)',min_value=0.,value=rho,step=.01,format='%.2f',key='mix_rho_'+tag)
+                with cols[2]: vals['mass_'+tag.lower()]=st.number_input(f'{tag} Flow Rate (kg/h)',min_value=0.,value=mass,step=.01,format='%.2f',key='mix_mass_'+tag)
+                rows.append([(tag+' 용액','label'),('Density\n(kg/m³)','label'),(f"{vals['rho_'+tag.lower()]:,.2f}",'input'),('Flow Rate\n(kg/h)','label'),(f"{vals['mass_'+tag.lower()]:,.2f}",'input')])
+            try:
+                result=engineering_result('density','혼합물 밀도',vals);density,total=result['metrics'][0][1],result['metrics'][1][1]
+            except (ValueError,OverflowError) as e: st.warning(str(e))
+            else:
+                cols=st.columns([.7,1,1])
+                with cols[0]: st.markdown('### TOTAL LIQUID')
+                with cols[1]: st.metric('Density (kg/m³)',f'{density:,.2f}')
+                with cols[2]: st.metric('Flow Rate (kg/h)',f'{total:,.2f}')
+                rows.append([('TOTAL LIQUID','label'),('Density\n(kg/m³)','label'),(f'{density:,.2f}','output'),('Flow Rate\n(kg/h)','label'),(f'{total:,.2f}','output')])
+                st.caption('혼합 전후 부피의 합이 유지된다고 가정합니다. 유체 온도 및 점도에 따라 실제 결과가 달라질 수 있습니다.')
+                st.download_button('혼합물 밀도 PDF 다운로드',density_report('혼합물 밀도 계산', [('혼합물 밀도',formula,rows)]),file_name='mixture_density_report.pdf',mime='application/pdf',key='density_mix_pdf')
+    footer()
+
+
 def home() -> None:
     st.markdown("""<style>
 [data-testid="stToolbar"],[data-testid="stToolbarActions"],[data-testid="stAppDeployButton"]{display:none!important}
@@ -1698,6 +1779,8 @@ def main() -> None:
         flow_calculator()
     elif st.session_state.page in ('layout', 'impact'):
         embedded_calculator(st.session_state.page)
+    elif st.session_state.page == "density":
+        density_calculator()
     elif st.session_state.page in CALC_MODES:
         engineering_calculator(st.session_state.page)
     else:
