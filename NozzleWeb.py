@@ -841,7 +841,7 @@ def pdf_curve_drawing(mode: str, target_air: float, result: dict[str, Any], air:
     from reportlab.graphics.shapes import Circle, Drawing, Line, Path, String
     from reportlab.lib.colors import HexColor
 
-    width, height = 500, (185 if ("이류체" in mode) else 215)
+    width, height = 500, (185 if ("이류체" in mode) else 180)
     left, right, bottom, top = 52, 18, 36, 22
     if air:
         result = air_chart_result(result)
@@ -885,6 +885,45 @@ def pdf_curve_drawing(mode: str, target_air: float, result: dict[str, Any], air:
     return drawing
 
 
+REPORT_NOTICE = "본 리포트는 입력 조건을 바탕으로 계산한 이론 결과입니다. 실제 선정 시 제조사 성능표, 유체 물성 및 현장 조건을 우선 확인하십시오."
+
+
+def author_inputs() -> None:
+    labels = ['부서명', '이름', '이메일 주소', '연락처']
+    saved = st.session_state.get('report_author_details', {})
+    with st.expander('PDF 작성자 정보 입력 (선택)', expanded=False):
+        st.caption('입력한 정보는 1~6번 PDF 하단에 공통으로 표시됩니다. 빈 항목은 표시하지 않습니다.')
+        cols = st.columns(4)
+        for col, label in zip(cols, labels):
+            with col:
+                saved[label] = st.text_input(label, value=saved.get(label, ''), max_chars=80, key='report_author_'+label)
+    st.session_state['report_author_details'] = dict(saved)
+
+
+def report_page_footer(canvas: Any, doc: Any) -> None:
+    from html import escape
+    from reportlab.lib import colors
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.platypus import Paragraph
+    canvas.saveState()
+    width, _ = doc.pagesize
+    left, right = doc.leftMargin, width-doc.rightMargin
+    canvas.setStrokeColor(colors.HexColor('#C9D8E1'))
+    canvas.line(left, 72, right, 72)
+    details = st.session_state.get('report_author_details', {})
+    text = ' · '.join(escape(label+': '+value.strip()) for label,value in details.items() if value.strip())
+    if text:
+        style = ParagraphStyle('AuthorFooter', fontName='HYSMyeongJo-Medium', fontSize=8, leading=11, textColor=colors.HexColor('#294A61'))
+        paragraph = Paragraph(text, style)
+        _, height = paragraph.wrap(right-left, 60)
+        paragraph.drawOn(canvas, left, 65-height)
+    canvas.setFont('Helvetica', 7)
+    canvas.setFillColor(colors.HexColor('#718594'))
+    canvas.drawString(left, 15, 'Spray Engineering Calculator - No.1 SPRAY SOLUTION PROVIDER')
+    canvas.drawRightString(right, 15, f'Page {doc.page}')
+    canvas.restoreState()
+
+
 def report_header(width: float) -> Any:
     from reportlab.lib import colors
     from reportlab.lib.styles import ParagraphStyle
@@ -912,7 +951,7 @@ def build_pdf(product: str, mode: str, target_basis: str, target_value: float, t
     korean = "HYSMyeongJo-Medium"
     buffer = BytesIO()
     document = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=16 * mm, rightMargin=16 * mm,
-                                 topMargin=14 * mm, bottomMargin=16 * mm, title="노즐 분사량 계산 리포트")
+                                 topMargin=14 * mm, bottomMargin=90, title="노즐 분사량 계산 리포트")
     styles = getSampleStyleSheet()
     normal = ParagraphStyle("KoreanNormal", parent=styles["Normal"], fontName=korean, fontSize=9, leading=14, textColor=colors.HexColor("#294A61"))
     title = ParagraphStyle("KoreanTitle", parent=normal, fontSize=20, leading=25, textColor=colors.HexColor("#072844"), spaceAfter=4)
@@ -995,17 +1034,7 @@ def build_pdf(product: str, mode: str, target_basis: str, target_value: float, t
         story.append(air_table)
     story.extend([Spacer(1, 8), Paragraph("본 리포트는 입력한 데이터시트 기준점의 평균 K값(액체)과 C값(공기)으로 계산한 이론 결과입니다. 실제 선정 시 제조사 성능표, 유체 물성 및 현장 조건을 우선 확인하십시오.", normal)])
 
-    def page_footer(canvas: Any, doc: Any) -> None:
-        canvas.saveState()
-        canvas.setStrokeColor(colors.HexColor("#C9D8E1"))
-        canvas.line(16 * mm, 12 * mm, 194 * mm, 12 * mm)
-        canvas.setFont("Helvetica", 7)
-        canvas.setFillColor(colors.HexColor("#718594"))
-        canvas.drawString(16 * mm, 8 * mm, "Spray Engineering Calculator - Independent Engineering Tool")
-        canvas.drawRightString(194 * mm, 8 * mm, f"Page {doc.page}")
-        canvas.restoreState()
-
-    document.build(story, onFirstPage=page_footer, onLaterPages=page_footer)
+    document.build(story, onFirstPage=report_page_footer, onLaterPages=report_page_footer)
     return buffer.getvalue()
 
 
@@ -1433,7 +1462,7 @@ def engineering_pdf_curve(page: str, mode: str, values: dict[str, Any], result: 
     xlabel, rows = engineering_curve(page, mode, values)
     current_x = values[engineering_curve_key(page, mode)]
     label, current_y, unit = result['metrics'][0]
-    width, height = 507, 238
+    width, height = 507, 180
     left, right, bottom, top = 72, 15, 44, 30
     max_x = max([current_x, 1.] + [r['x'] for r in rows])
     max_y = max([current_y, 1.] + [r['y'] for r in rows])*1.08
@@ -1467,22 +1496,22 @@ def engineering_pdf(title: str, mode: str, inputs: list[tuple[str, str]], result
     from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle, KeepTogether
     font = 'HYSMyeongJo-Medium'
     pdfmetrics.registerFont(UnicodeCIDFont(font))
-    normal = ParagraphStyle('NormalKR', fontName=font, fontSize=10, leading=16, textColor=colors.HexColor('#294a61'))
+    normal = ParagraphStyle('NormalKR', fontName=font, fontSize=9, leading=13, textColor=colors.HexColor('#294a61'))
     heading = ParagraphStyle('TitleKR', parent=normal, fontSize=20, leading=28, spaceAfter=10)
     small = ParagraphStyle('SmallKR', parent=normal, fontSize=8, leading=12)
     buf = BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=44, rightMargin=44, topMargin=38, bottomMargin=38, title=title)
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=44, rightMargin=44, topMargin=38, bottomMargin=90, title=title)
     story = [report_header(doc.width), Spacer(1,18), Paragraph(escape(title), heading)]
     if page != 'air': story.append(Paragraph(escape(mode), normal))
     story.extend([Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), small), Spacer(1,12)])
-    for section, rows in [('입력 조건', inputs), ('계산 결과', [(label, f'{value:,.2f} {unit}') for label, value, unit in result['metrics']])]:
+    for section, rows in [('1. 입력 조건', inputs), ('2. 예측 결과', [(label, f'{value:,.2f} {unit}') for label, value, unit in result['metrics']])]:
         story.extend([Paragraph(section, normal), Spacer(1, 6)])
         table = Table([[Paragraph(escape(str(k)), normal), Paragraph(escape(str(v)), normal)] for k, v in rows], colWidths=[270, 237])
-        table.setStyle(TableStyle([('BACKGROUND',(0,0),(0,-1),colors.HexColor('#e0f2fb')), ('GRID',(0,0),(-1,-1),.4,colors.HexColor('#cbdde7')), ('VALIGN',(0,0),(-1,-1),'TOP'), ('TOPPADDING',(0,0),(-1,-1),7), ('BOTTOMPADDING',(0,0),(-1,-1),7)]))
+        table.setStyle(TableStyle([('BACKGROUND',(0,0),(0,-1),colors.HexColor('#e0f2fb')), ('GRID',(0,0),(-1,-1),.4,colors.HexColor('#cbdde7')), ('VALIGN',(0,0),(-1,-1),'TOP'), ('TOPPADDING',(0,0),(-1,-1),5), ('BOTTOMPADDING',(0,0),(-1,-1),5)]))
         story.extend([table, Spacer(1, 12)])
-    story.append(KeepTogether([Paragraph('입력 조건에 따른 변화', normal), Spacer(1,6), engineering_pdf_curve(page, mode, values, result), Paragraph('파란색: 계산 곡선 · 초록색: 현재 입력 조건', small)]))
-    story.extend([Spacer(1,8), Paragraph(escape(result['note']), small)])
-    doc.build(story)
+    story.append(KeepTogether([Paragraph('3. 입력 조건에 따른 변화', normal), Spacer(1,6), engineering_pdf_curve(page, mode, values, result), Paragraph('파란색: 계산 곡선 · 초록색: 현재 입력 조건', small)]))
+    story.extend([Spacer(1,8), Paragraph('4. 계산 조건 및 참고 사항', normal), Paragraph(escape(result['note']), small), Spacer(1,10), Paragraph(REPORT_NOTICE, small)])
+    doc.build(story, onFirstPage=report_page_footer, onLaterPages=report_page_footer)
     return buf.getvalue()
 
 
@@ -1673,7 +1702,7 @@ def density_report(title: str, sections: list) -> bytes:
     style = ParagraphStyle('density', fontName='HYSMyeongJo-Medium', fontSize=9, leading=14)
     heading = ParagraphStyle('densityTitle', parent=style, fontSize=19, leading=26)
     buf = BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=38, rightMargin=38, topMargin=38, bottomMargin=38, title=title)
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=38, rightMargin=38, topMargin=38, bottomMargin=90, title=title)
     story = [report_header(doc.width), Spacer(1,18), Paragraph(title, heading), Spacer(1,12), Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), style), Paragraph('노란색: 입력값 / 회색: 계산 결과', style), Spacer(1,22)]
     for name, formula, rows in sections:
         block = [Paragraph(name, heading), Spacer(1,8), Paragraph(escape(formula), style), Spacer(1,12)]
@@ -1684,8 +1713,8 @@ def density_report(title: str, sections: list) -> bytes:
             for x,(text,kind) in enumerate(row):
                 styles.append(('BACKGROUND',(x,y),(x,y),colors.HexColor({'input':'#fff600','output':'#dedede','label':'#fce9d9'}[kind])))
         table.setStyle(TableStyle(styles));block.extend([table,Spacer(1,30)]);story.append(KeepTogether(block))
-    story += [Paragraph('유체 온도 및 점도, 혼합 시 부피 변화에 따라 실제 결과가 달라질 수 있습니다.',style),Spacer(1,18),Paragraph('Powered by Spraying Systems Korea 기술영업부 유재환 수석 jhyou@spray.co.kr',style)]
-    doc.build(story)
+    story += [Paragraph(f'{len(sections)+1}. 계산 조건 및 참고 사항', heading), Spacer(1,8), Paragraph('유체 온도 및 점도, 혼합 시 부피 변화에 따라 실제 결과가 달라질 수 있습니다.',style), Spacer(1,10), Paragraph(REPORT_NOTICE,style)]
+    doc.build(story, onFirstPage=report_page_footer, onLaterPages=report_page_footer)
     return buf.getvalue()
 
 
@@ -1705,6 +1734,7 @@ def density_calculator() -> None:
 .st-key-density_sheet [role="tab"][aria-selected="true"]{background:#006da6!important;color:#fff!important;border-color:#006da6!important}
 
 </style>''', unsafe_allow_html=True)
+    st.info('밀도는 단위 부피당 질량(kg/m³), 비중은 기준 물의 밀도에 대한 비율로 단위가 없습니다. 이 계산기는 물의 기준 밀도를 1,000 kg/m³로 두어 비중 = 밀도 ÷ 1,000을 적용합니다. 따라서 밀도 1,000 kg/m³는 비중 1, 밀도 925 kg/m³는 비중 0.925입니다. 실제 물의 밀도는 온도에 따라 달라지므로 정밀 환산 시 기준 온도를 확인하세요.')
     st.markdown('### 아래에서 사용할 계산식을 선택하세요')
     with st.container(key='density_sheet'):
         tab1,tab2=st.tabs(['① 유량 단위·비중 환산','② 혼합물 밀도'])
@@ -1750,7 +1780,7 @@ def density_calculator() -> None:
                 with cols[2]: st.metric('Flow Rate (kg/h)',f'{total:,.2f}')
                 rows.append([('TOTAL LIQUID','label'),('Density\n(kg/m³)','label'),(f'{density:,.2f}','output'),('Flow Rate\n(kg/h)','label'),(f'{total:,.2f}','output')])
                 st.caption('혼합 전후 부피의 합이 유지된다고 가정합니다. 유체 온도 및 점도에 따라 실제 결과가 달라질 수 있습니다.')
-                st.download_button('혼합물 밀도 PDF 다운로드',density_report('혼합물 밀도 계산', [('혼합물 밀도',formula,rows)]),file_name='mixture_density_report.pdf',mime='application/pdf',key='density_mix_pdf')
+                st.download_button('혼합물 밀도 PDF 다운로드',density_report('혼합물 밀도 계산', [('1. 혼합물 밀도',formula,rows)]),file_name='mixture_density_report.pdf',mime='application/pdf',key='density_mix_pdf')
     footer()
 
 
@@ -1788,16 +1818,21 @@ def main() -> None:
         st.markdown('<style>[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stToolbarActions"],[data-testid="stAppDeployButton"]{display:none!important}</style>', unsafe_allow_html=True)
     if st.session_state.page != "layout":
         st.markdown(CSS, unsafe_allow_html=True)
-    if st.session_state.page == "flow":
-        flow_calculator()
-    elif st.session_state.page in ('layout', 'impact'):
-        embedded_calculator(st.session_state.page)
-    elif st.session_state.page == "density":
-        density_calculator()
-    elif st.session_state.page in CALC_MODES:
-        engineering_calculator(st.session_state.page)
-    else:
-        home()
+    content = st.container()
+    if st.session_state.page in ('flow','water','air','slit','pipe','density'):
+        author_inputs()
+    with content:
+        if st.session_state.page == "flow":
+            flow_calculator()
+        elif st.session_state.page in ('layout', 'impact'):
+            embedded_calculator(st.session_state.page)
+        elif st.session_state.page == "density":
+            density_calculator()
+        elif st.session_state.page in CALC_MODES:
+            engineering_calculator(st.session_state.page)
+        else:
+            home()
+
 
 
 if __name__ == "__main__":
