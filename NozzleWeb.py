@@ -1613,7 +1613,8 @@ def embedded_calculator(page: str) -> None:
 [data-testid="stMainBlockContainer"]{max-width:none!important;padding:0!important}
 [data-testid="stHeader"],#MainMenu{display:none!important}
 [data-testid="stMainBlockContainer"]>div{gap:0!important}
-[data-testid="stMainBlockContainer"] iframe{width:100%!important;height:calc(100dvh - 54px)!important;min-height:500px;border:0!important}
+[data-testid="stElementContainer"]:has(> iframe[data-testid="stIFrame"]){height:calc(100dvh - 40px)!important;flex:0 0 calc(100dvh - 40px)!important;min-height:0!important;max-height:calc(100dvh - 40px)!important}
+[data-testid="stMainBlockContainer"] iframe{display:block;width:100%!important;height:100%!important;min-height:0!important;border:0!important}
 </style>""", unsafe_allow_html=True)
         st.button('← 계산기 목록', on_click=go, args=('home',))
         html = html_bytes.decode('utf-8-sig')
