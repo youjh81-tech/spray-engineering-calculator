@@ -885,6 +885,18 @@ def pdf_curve_drawing(mode: str, target_air: float, result: dict[str, Any], air:
     return drawing
 
 
+def report_header(width: float) -> Any:
+    from reportlab.lib import colors
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.platypus import Image, Paragraph, Table, TableStyle
+    logo = Image(BytesIO(base64.b64decode(LOGO_PNG_BASE64)), width=193, height=38)
+    logo.hAlign = 'LEFT'
+    style = ParagraphStyle('ReportBrand', fontName='Helvetica', fontSize=8, leading=14, alignment=2, textColor=colors.HexColor('#607789'))
+    head = Table([[logo, Paragraph('SPRAY ENGINEERING CALCULATOR<br/>No.1 SPRAY SOLUTION PROVIDER', style)]], colWidths=[width*.53,width*.47])
+    head.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'MIDDLE'),('LINEBELOW',(0,0),(-1,-1),1.2,colors.HexColor('#0085C8')),('LEFTPADDING',(0,0),(0,0),0),('RIGHTPADDING',(-1,0),(-1,0),0),('BOTTOMPADDING',(0,0),(-1,-1),10)]))
+    return head
+
+
 def build_pdf(product: str, mode: str, target_basis: str, target_value: float, target_air: float,
               result: dict[str, Any]) -> bytes:
     from reportlab.lib import colors
@@ -907,12 +919,8 @@ def build_pdf(product: str, mode: str, target_basis: str, target_value: float, t
     section = ParagraphStyle("Section", parent=normal, fontSize=11, leading=16, textColor=colors.HexColor("#072844"), spaceBefore=10, spaceAfter=6)
     right = ParagraphStyle("Right", parent=normal, alignment=TA_RIGHT, fontSize=8, textColor=colors.HexColor("#607789"))
 
-    logo = Image(BytesIO(base64.b64decode(LOGO_PNG_BASE64)), width=68 * mm, height=13.4 * mm)
-    logo.hAlign = "LEFT"
-
     story: list[Any] = []
-    head = Table([[logo, Paragraph("SPRAY ENGINEERING CALCULATOR<br/>INDEPENDENT REPORT", right)]], colWidths=[105 * mm, 72 * mm])
-    head.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LINEBELOW", (0, 0), (-1, -1), 1.2, colors.HexColor("#0085C8")), ("BOTTOMPADDING", (0, 0), (-1, -1), 8)]))
+    head = report_header(document.width)
     story.extend([head, Spacer(1, 9), Paragraph("노즐 분사량 계산 리포트", title),
                   Paragraph(f"작성일: {datetime.now().strftime('%Y-%m-%d %H:%M')}", normal), Spacer(1, 8)])
     story.append(Paragraph("1. 노즐 / 제품명", section))
@@ -1186,11 +1194,6 @@ def flow_calculator() -> None:
             st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
             pdf_data = build_pdf(product, mode, target_basis, target_value, target_air, result)
             st.download_button("PDF 리포트 다운로드", disabled=bool(result["air_error"]) or result["valid_count"] == 0 or (("이류체" in mode) and result["air_valid_count"] == 0), data=pdf_data, file_name="nozzle_flow_rate_report.pdf", mime="application/pdf", type="primary", width="stretch")
-            with st.expander("계산 방식 확인"):
-                if mode.startswith("일류체"):
-                    st.markdown("<div class='formula'><b>일류체</b><br>① Kᵢ = Qᵢ ÷ √Pᵢ<br>② K̄ = 유효한 Kᵢ의 평균<br>③ 압력 기준: Qₜ = K̄ × √Pₜ<br>④ 유량 기준: Pₜ = (Qₜ ÷ K̄)²</div>", unsafe_allow_html=True)
-                else:
-                    st.markdown("<div class='formula'><b>액체</b><br>Kᵢ = Qᵢ / √Pᵢ, Q = K̄√P, P = (Q/K̄)²<br><b>공기</b><br>a = πD²/4, T = t + 273<br>Pabs = P(bar)/0.980665 + 1.033<br>Q = (237.6/1.2) × a × C × Pabs / √T<br>Cᵢ = Qᵢ√T / [(237.6/1.2) × a × Pabs,ᵢ]<br>C̄ = 유효한 Cᵢ의 평균<br>유량 기준: P(bar) = [Q√T / ((237.6/1.2) × a × C̄) - 1.033] × 0.980665<br>첨부 식의 밀도 1.2 kg/m³ 기준 유량을 사용합니다.</div>", unsafe_allow_html=True)
     footer()
 
 
@@ -1469,9 +1472,9 @@ def engineering_pdf(title: str, mode: str, inputs: list[tuple[str, str]], result
     small = ParagraphStyle('SmallKR', parent=normal, fontSize=8, leading=12)
     buf = BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=44, rightMargin=44, topMargin=38, bottomMargin=38, title=title)
-    logo = Image(BytesIO(base64.b64decode(LOGO_PNG_BASE64)), width=220, height=43.4); logo.hAlign='LEFT'
-    story = [logo, Spacer(1, 18), Paragraph(escape(title), heading), Paragraph(escape(mode), normal),
-             Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), small), Spacer(1, 12)]
+    story = [report_header(doc.width), Spacer(1,18), Paragraph(escape(title), heading)]
+    if page != 'air': story.append(Paragraph(escape(mode), normal))
+    story.extend([Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), small), Spacer(1,12)])
     for section, rows in [('입력 조건', inputs), ('계산 결과', [(label, f'{value:,.2f} {unit}') for label, value, unit in result['metrics']])]:
         story.extend([Paragraph(section, normal), Spacer(1, 6)])
         table = Table([[Paragraph(escape(str(k)), normal), Paragraph(escape(str(v)), normal)] for k, v in rows], colWidths=[270, 237])
@@ -1506,6 +1509,9 @@ def engineering_calculator(page: str) -> None:
             mode = st.selectbox('계산 항목', CALC_MODES[page], key=f'{page}_mode')
             prefix = f'{page}_{CALC_MODES[page].index(mode)}'
             values: dict[str, Any] = {}; input_rows = []
+            if page in ('water', 'air'):
+                product = st.text_input('노즐 / 제품명', placeholder='클릭하여 입력', key=page+'_product_name')
+                input_rows.append(('노즐 / 제품명', product or '미입력'))
             if page == 'air':
                 unit = st.selectbox('공기 압력 단위 (게이지압)', ['kgf/cm²', 'bar'], key=prefix+'_pressure_unit')
                 values['pressure_unit'] = unit; input_rows.append(('압력 단위', unit))
@@ -1576,8 +1582,6 @@ def engineering_calculator(page: str) -> None:
                     ], 'config': {'view': {'stroke':'#d6e2e9','fill':'#ffffff'}, 'axis': {'labelColor':'#577084','titleColor':'#14364e','gridColor':'#dce7ed','domainColor':'#d6e2e9','tickColor':'#d6e2e9','format':'.2f'}}
                 }, width='stretch', theme=None)
                 st.caption('파란색은 선택한 입력값에 따른 계산 결과, 초록색은 현재 조건입니다. 다른 입력값은 고정합니다.')
-            with st.expander('계산 방식 확인'):
-                for formula in result['formula']: st.latex(formula)
             with st.container(border=True):
                 st.markdown("<div class='subhead'>PDF 리포트</div>", unsafe_allow_html=True)
                 st.download_button('PDF 리포트 다운로드', data=engineering_pdf(title, mode, input_rows, result, SOURCE_NAMES[page], page, values), file_name=f'{page}_calculation_report.pdf', mime='application/pdf', type='primary', width='stretch')
@@ -1670,7 +1674,7 @@ def density_report(title: str, sections: list) -> bytes:
     heading = ParagraphStyle('densityTitle', parent=style, fontSize=19, leading=26)
     buf = BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=38, rightMargin=38, topMargin=38, bottomMargin=38, title=title)
-    story = [Paragraph(title, heading), Spacer(1,12), Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), style), Paragraph('노란색: 입력값 / 회색: 계산 결과', style), Spacer(1,22)]
+    story = [report_header(doc.width), Spacer(1,18), Paragraph(title, heading), Spacer(1,12), Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M'), style), Paragraph('노란색: 입력값 / 회색: 계산 결과', style), Spacer(1,22)]
     for name, formula, rows in sections:
         block = [Paragraph(name, heading), Spacer(1,8), Paragraph(escape(formula), style), Spacer(1,12)]
         cells = [[Paragraph(escape(str(text)).replace('\n','<br/>'),style) for text,kind in row] for row in rows]
@@ -1780,6 +1784,8 @@ def home() -> None:
 
 def main() -> None:
     init_state()
+    if st.session_state.page in ('home','flow','water','air','slit','pipe','density'):
+        st.markdown('<style>[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stToolbarActions"],[data-testid="stAppDeployButton"]{display:none!important}</style>', unsafe_allow_html=True)
     if st.session_state.page != "layout":
         st.markdown(CSS, unsafe_allow_html=True)
     if st.session_state.page == "flow":
