@@ -1,4 +1,4 @@
-"""Spray Engineering Calculator: eight active calculators.
+"""Spray Engineering Calculator: nine active calculators.
 
 Calculators 02–06 reproduce the supplied AIR/WATER, nozzle, slit and density workbooks.
 """
@@ -1243,6 +1243,7 @@ CALCULATOR_CARDS = [
     ("density", "밀도·비중별 유량 계산기", "질량·부피 유량과 비중 보정 유량을 환산하고 혼합물의 밀도를 계산합니다."),
     ('layout', 'SprayLayout Pro · 노즐 배치 계산기', '분사 폭과 겹침률을 바탕으로 노즐 수량과 배치를 검토합니다.'),
     ('impact', '노즐 충격력·펌프 계산기', '노즐 충격력과 펌프 이론 계산을 시뮬레이션과 함께 확인합니다.'),
+    ('auxiliary', '단위 환산·삼각함수 보조 계산기', '압력·유량·온도·질량·체적 환산과 노즐 높이·분사각에 따른 커버리지를 계산합니다.'),
 ]
 
 # mode: (field key, label including unit, workbook default, minimum)
@@ -1784,6 +1785,91 @@ def density_calculator() -> None:
     footer()
 
 
+# Conversion factors use Pa, L/min, kg and L as base units (NIST SP 811).
+AUX_UNITS = {
+    '압력': {'bar':100000., 'MPa':1e6, 'kPa':1000., 'Pa':1., 'psi':6894.757293168, 'kgf/cm²':98066.5, 'atm':101325.},
+    '유량': {'L/min':1., 'L/h':1/60, 'L/s':60., 'm³/h':1000/60, 'm³/min':1000., 'mL/min':.001, 'US gpm':3.785411784, 'Imperial gpm':4.54609, 'ft³/min (CFM)':28.316846592},
+    '온도': {'°C':1., '°F':1., 'K':1.},
+    '질량': {'kg':1., 'g':.001, 'mg':.000001, 't':1000., 'lb':.45359237, 'oz':.028349523125},
+    '체적': {'L':1., 'mL':.001, 'm³':1000., 'cm³':.001, 'US gal':3.785411784, 'Imperial gal':4.54609, 'ft³':28.316846592, 'in³':.016387064},
+}
+
+
+def auxiliary_convert(category: str, value: float, source: str, target: str) -> float:
+    if not math.isfinite(value): raise ValueError('유효한 숫자를 입력하세요.')
+    if category == '온도':
+        kelvin = value+273.15 if source=='°C' else (value-32)*5/9+273.15 if source=='°F' else value
+        if kelvin < -1e-10: raise ValueError('절대영도(0 K / -273.15°C) 이상으로 입력하세요.')
+        kelvin=max(0.,kelvin)
+        result=kelvin-273.15 if target=='°C' else (kelvin-273.15)*9/5+32 if target=='°F' else kelvin
+    else: result=value*AUX_UNITS[category][source]/AUX_UNITS[category][target]
+    if not math.isfinite(result): raise ValueError('입력값이 계산 범위를 벗어났습니다.')
+    return result
+
+
+def nozzle_triangle(mode: str, height: float, angle: float, coverage: float) -> tuple[float,float,float]:
+    if not all(math.isfinite(v) for v in (height,angle,coverage)): raise ValueError('유효한 숫자를 입력하세요.')
+    if mode != '분사각 계산' and not 0 < angle < 180: raise ValueError('전체 분사각은 0° 초과, 180° 미만이어야 합니다.')
+    if mode != '높이 계산' and height <= 0: raise ValueError('노즐 높이는 0보다 커야 합니다.')
+    if mode != '커버리지 계산' and coverage <= 0: raise ValueError('커버리지는 0보다 커야 합니다.')
+    if mode == '커버리지 계산': coverage=2*height*math.tan(math.radians(angle/2))
+    elif mode == '높이 계산': height=coverage/(2*math.tan(math.radians(angle/2)))
+    else: angle=math.degrees(2*math.atan(coverage/(2*height)))
+    if not all(math.isfinite(v) for v in (height,angle,coverage)): raise ValueError('입력값이 계산 범위를 벗어났습니다.')
+    return height,angle,coverage
+
+
+def auxiliary_calculator() -> None:
+    header()
+    st.button('← 계산기 목록',on_click=go,args=('home',))
+    st.markdown('<section class="calc-intro"><div><span class="calc-index">CALCULATOR / 09</span><h1>단위 환산·삼각함수 보조 계산기</h1><p>단위를 환산하거나 노즐 높이·전체 분사각·커버리지의 관계를 확인하세요.</p></div></section>',unsafe_allow_html=True)
+    st.markdown('''<style>[data-testid="stTabs"] [role="tab"]{padding:12px 20px!important;height:auto!important;border:1px solid #7195ae!important;border-radius:6px;background:#e3edf5!important;color:#163c56!important}[data-testid="stTabs"] [role="tab"][aria-selected="true"]{background:#006da6!important;color:white!important}[data-testid="stTabs"] [role="tab"] p{color:inherit!important;font-weight:700}</style>''',unsafe_allow_html=True)
+    units,triangle=st.tabs(['① 단위 환산','② 삼각함수·노즐 커버리지'])
+    with units:
+        category=st.selectbox('환산 항목',list(AUX_UNITS),key='aux_category')
+        choices=list(AUX_UNITS[category]);left,right=st.columns(2)
+        with left:
+            source=st.selectbox('입력 단위',choices,key='aux_from_'+category)
+            value=st.number_input('입력값',value=1.,format='%.6f',key='aux_value_'+category)
+        with right:
+            target=st.selectbox('결과 단위',choices,index=1,key='aux_to_'+category)
+            try:
+                result=auxiliary_convert(category,value,source,target)
+                st.metric('환산 결과',f'{result:,.6g} {target}')
+                st.caption(f'{value:,.10g} {source} = {result:,.10g} {target}')
+            except ValueError as e: st.warning(str(e))
+        if category=='압력': st.caption('단위만 환산합니다. 게이지압과 절대압 사이의 기준압 보정은 하지 않습니다.')
+        if category=='유량': st.caption('체적 유량 단위 환산입니다. 기체의 압력·온도 및 표준상태(NL, SCFM) 보정은 포함하지 않습니다.')
+        if category in ('체적','유량'): st.caption('미국 US gallon과 영국 Imperial gallon은 서로 다른 단위입니다.')
+        st.caption('환산 계수: NIST SP 811. 내부 계산은 표시 자릿수로 반올림하지 않습니다.')
+    with triangle:
+        mode=st.selectbox('계산 항목',['커버리지 계산','높이 계산','분사각 계산'],key='aux_triangle_mode')
+        length_unit=st.selectbox('높이·커버리지 단위',['mm','cm','m','in'],key='aux_length_unit')
+        st.caption('입력한 길이는 선택한 단위로 해석됩니다. 분사각은 중심선 양쪽을 합한 전체 각도입니다.')
+        left,right=st.columns([1,1.4]);h,a,w=100.,65.,127.41
+        with left:
+            if mode!='높이 계산': h=st.number_input('노즐 높이 H ('+length_unit+')',min_value=0.,value=100.,format='%.2f',key='aux_height')
+            if mode!='분사각 계산': a=st.number_input('전체 분사각 θ (°)',min_value=0.,max_value=180.,value=65.,format='%.2f',key='aux_angle')
+            if mode!='커버리지 계산': w=st.number_input('커버리지 W ('+length_unit+')',min_value=0.,value=127.41,format='%.2f',key='aux_width')
+            st.markdown('**W = 2 × H × tan(θ / 2)**')
+            st.caption('노즐 중심선이 평평한 대상면에 수직이고 분사가 대칭인 경우의 이론 폭입니다. 실제 분사각·유효 커버리지는 압력과 노즐 특성에 따라 달라질 수 있습니다.')
+        with right:
+            try: h,a,w=nozzle_triangle(mode,h,a,w)
+            except ValueError as e: st.warning(str(e))
+            else:
+                label,val,unit=('커버리지 W',w,length_unit) if mode=='커버리지 계산' else ('노즐 높이 H',h,length_unit) if mode=='높이 계산' else ('전체 분사각 θ',a,'°')
+                st.metric(label,f'{val:,.2f} {unit}')
+                scale=min(400/w,230/h);x=w/2*scale;y=70+h*scale
+                st.markdown(f'''<svg viewBox="0 0 560 390" role="img" aria-label="노즐 높이와 전체 분사각에 따른 커버리지" style="width:100%;background:white;border:1px solid #cbdde7;border-radius:8px"><polygon points="280,70 {280-x},{y} {280+x},{y}" fill="#e0f2fb" stroke="#0085c8" stroke-width="2"/><line x1="280" y1="70" x2="280" y2="{y}" stroke="#577084" stroke-dasharray="5 4"/><circle cx="280" cy="70" r="6" fill="#14364e"/><text x="280" y="30" text-anchor="middle" fill="#14364e">전체 분사각 θ = {a:.2f}°</text><text x="290" y="{70+h*scale/2}" fill="#14364e">H = {h:,.2f} {length_unit}</text><text x="280" y="350" text-anchor="middle" fill="#006da6">커버리지 W = {w:,.2f} {length_unit}</text></svg>''',unsafe_allow_html=True)
+        with st.expander('기본 삼각함수 sin · cos · tan'):
+            theta=st.number_input('각도 (°)',value=30.,format='%.2f',key='aux_trig_angle')
+            radians=math.radians(theta%360);c=math.cos(radians)
+            cols=st.columns(3)
+            for col,label,value in zip(cols,['sin','cos','tan'],[f'{math.sin(radians):.6f}',f'{c:.6f}','정의되지 않음' if abs(c)<1e-12 else f'{math.tan(radians):.6f}']):
+                with col: st.metric(label,value)
+    footer()
+
+
 def home() -> None:
     st.markdown("""<style>
 [data-testid="stToolbar"],[data-testid="stToolbarActions"],[data-testid="stAppDeployButton"]{display:none!important}
@@ -1794,12 +1880,12 @@ def home() -> None:
     st.markdown('''<section class="hero"><div><div class="eyebrow">SPRAY ENGINEERING WORKSPACE</div>
     <h1>Spray Engineering<br>Calculator</h1><p>현장 조건에 맞는 계산기를 선택하고 필요한 운전값을 빠르게 검토하세요.</p></div></section>
     <div class="section-kicker">SELECT A CALCULATOR</div><div class="section-title">계산기 선택</div>
-    <div class="section-copy">총 8개의 계산기를 사용할 수 있습니다.</div>''', unsafe_allow_html=True)
-    for row in range(0, 8, 3):
+    <div class="section-copy">총 9개의 계산기를 사용할 수 있습니다.</div>''', unsafe_allow_html=True)
+    for row in range(0, len(CALCULATOR_CARDS), 3):
         columns = st.columns(3, gap='large')
         for offset, col in enumerate(columns):
             i = row+offset
-            if i >= 8: break
+            if i >= len(CALCULATOR_CARDS): break
             with col:
                 if i < len(CALCULATOR_CARDS):
                     page, title, copy = CALCULATOR_CARDS[i]
@@ -1814,7 +1900,7 @@ def home() -> None:
 
 def main() -> None:
     init_state()
-    if st.session_state.page in ('home','flow','water','air','slit','pipe','density'):
+    if st.session_state.page in ('home','flow','water','air','slit','pipe','density','auxiliary'):
         st.markdown('<style>[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stToolbarActions"],[data-testid="stAppDeployButton"]{display:none!important}</style>', unsafe_allow_html=True)
     if st.session_state.page != "layout":
         st.markdown(CSS, unsafe_allow_html=True)
@@ -1828,6 +1914,8 @@ def main() -> None:
             embedded_calculator(st.session_state.page)
         elif st.session_state.page == "density":
             density_calculator()
+        elif st.session_state.page == "auxiliary":
+            auxiliary_calculator()
         elif st.session_state.page in CALC_MODES:
             engineering_calculator(st.session_state.page)
         else:
