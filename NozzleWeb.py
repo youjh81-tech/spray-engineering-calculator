@@ -1829,23 +1829,30 @@ def spray_aux_result(kind: str, a: dict) -> list:
         length=positive('length','제품 길이');width=positive('width','제품 폭')
         efficiency=positive('efficiency','도포 효율')
         if efficiency>100: raise ValueError('도포 효율은 100% 이하여야 합니다.')
-        dose=a['dose'] if a['mass_basis']==0 else a['dose']*1000/positive('rho','액체 밀도')
+        dose=a['dose']
         duration=length/(positive('speed','제품 이동 속도')*1000/60) if a['moving']==1 else positive('duration','제품당 ON 분사 시간')
         required=dose/(efficiency/100)
         q=required/duration*60/1000/a['count']
-        rows=[('제품 면적',length*width,'mm²'),('제품당 ON 분사 시간',duration,'초'),('제품에 도달할 액량',dose,'mL/개'),('제품당 총 분사량',required,'mL/개'),('필요 노즐당 ON 유량',q,'L/min·개'),('필요 전체 ON 유량',q*a['count'],'L/min')]
+        rows=[('제품 면적',length*width,'mm²'),('제품 면적 (제곱미터)',length*width/1000000,'m²'),('제품당 ON 분사 시간',duration,'초'),('제품당 총 분사량',required,'mL/개'),('필요 노즐당 ON 유량',q,'L/min·개'),('필요 전체 ON 유량',q*a['count'],'L/min')]
+        if a['moving']==1:
+            products=positive('products','분당 이송 제품 수량')
+            if not products.is_integer(): raise ValueError('분당 이송 제품 수량은 정수로 입력하세요.')
+            maximum=a['speed']*1000/length
+            if products>maximum+1e-10: raise ValueError(f'이송 속도와 제품 길이 기준 최대 수량은 {math.floor(maximum):,d}개/분입니다. 수량·속도·길이를 확인하세요.')
+            pitch=a['speed']*1000/products
+            rows.extend([('분당 이송 제품 수량',products,'개/min'),('최대 이송 제품 수량 (간격 없음)',math.floor(maximum),'개/min'),('제품 사이 간격',max(0.,pitch-length),'mm'),('노즐당 분당 평균 유량',required*products/1000/a['count'],'L/min·개'),('전체 분당 평균 유량',required*products/1000,'L/min')])
     elif kind == 'wear':
         ref=positive('reference','새 노즐 기준 유량');days=positive('elapsed','현재까지 사용 일수')
         delta=a['measured']-ref;rate=delta/ref*100
         rows=[('현재 유량 증가율 (마모 지표)',rate,'%'),('현재까지 사용 일수',days,'일')]
         if delta>=0:
             daily=delta/days;future=a['measured']+daily*a['future']
-            rows.extend([('하루 유량 증가량 (선형 추정)',daily,'L/min·일'),('예상 누적 사용 일수',days+a['future'],'일'),('예상 노즐 유량',future,'L/min'),('예상 유량 증가율 (마모 지표)',(future/ref-1)*100,'%')])
+            rows.extend([('월 유량 증가량',daily*30,'L/min·월'),('예상 누적 사용 일수',days+a['future'],'일'),('예상 노즐 유량',future,'L/min'),('예상 유량 증가율 (마모 지표)',(future/ref-1)*100,'%')])
     else:
         duration=positive('on','ON 분사 시간');cycle=duration+a['off']
         q=a['volume']/duration*60/1000 if kind=='pulse_reverse' else a['flow']
         shot=q*duration/60*1000
-        rows=[('노즐당 ON 유량',q,'L/min'),('노즐당 1회 ON 분사량',shot,'mL/회'),('노즐당 주기 평균 유량',shot/cycle*60/1000,'L/min'),('노즐당 시간당 사용량',shot/cycle*3600/1000,'L/h'),('시간당 분사 횟수',3600/cycle,'회/h')]
+        rows=[('노즐당 1회 ON 분사량',shot,'mL/회'),('노즐당 주기 평균 유량',shot/cycle*60/1000,'L/min'),('노즐당 시간당 사용량',shot/cycle*3600/1000,'L/h'),('시간당 분사 횟수',3600/cycle,'회/h')]
     if any(not math.isfinite(value) for _,value,_ in rows): raise ValueError('입력값이 계산 범위를 벗어났습니다.')
     return rows
 
@@ -1855,36 +1862,38 @@ def spray_aux_panel(kind: str) -> None:
     if kind=='coating':
         st.markdown('### 제품당 도포량으로 필요 노즐 유량 계산')
         motion=st.radio('제품 분사 방식',['이동 제품','정지 제품'],horizontal=True,key='product_motion')
-        basis=st.radio('제품당 도포량 단위',['mL/개','g/개'],horizontal=True,key='product_dose_basis')
-        extra={'moving':float(motion=='이동 제품'),'mass_basis':float(basis=='g/개')}
-        fields=[('length','제품 길이 · 이동 방향 (mm)',300.),('width','제품 폭 (mm)',200.),('dose','제품 1개에 도포할 양 ('+basis+')',5.),('count','동시에 분사하는 노즐 수 (개)',1.),('efficiency','도포 효율 (%)',100.)]
-        if motion=='이동 제품': fields.insert(2,('speed','제품 이동 속도 (m/min)',10.))
-        else: fields.insert(2,('duration','제품당 ON 분사 시간 (초)',1.8))
-        if basis=='g/개': fields.append(('rho','액체 밀도 (kg/m³)',1000.))
-        note='제품 한 면에 도포하는 총량을 입력하세요. 모든 노즐이 같은 유량으로 제품 전체 폭을 도포한다고 가정합니다. 이동 제품의 분사 시간은 제품 길이 ÷ 이동 속도입니다. 제품 폭은 면적 확인에 사용하며 노즐 수·배치는 별도로 선정하세요. 도포 효율은 실제 제품에 도달하는 비율입니다.'
+        extra={'moving':float(motion=='이동 제품')}
+        fields=[('length','제품 길이 · 이동 방향 (mm)',300.),('width','제품 폭 (mm)',200.),('dose','제품 1개에 도포할 양 (mL/개)',5.),('count','동시에 분사하는 노즐 수 (개)',1.),('efficiency','도포 효율 (Puls%)',100.)]
+        if motion=='이동 제품': fields[2:2]=[('speed','제품 이동 속도 (m/min)',10.),('products','분당 이송 제품 수량 (개/min)',10.)]
+        else: fields.insert(2,('duration','제품당 ON 분사 시간 (초)',2.))
+        note='제품 한 면에 도포하는 총량을 입력하세요. 모든 노즐이 같은 유량으로 제품 전체 폭을 도포한다고 가정합니다. 이동 제품의 분사 시간은 제품 길이 ÷ 이동 속도입니다. 제품 폭은 면적 확인에 사용하며 노즐 수·배치는 별도로 선정하세요. 한 줄 이송을 가정하며, 제품 사이에서는 분사를 정지합니다. 분당 수량은 평균 사용량에 반영되며 ON 유량은 제품 통과 시간으로 계산합니다. Puls%는 기존 도포 효율 보정값으로 적용합니다.'
         formula='노즐당 ON 유량(L/min) = 제품당 도포량(mL) ÷ 도포 효율 ÷ 노즐 수 ÷ ON 시간(초) × 60 ÷ 1000'
     elif kind=='wear':
         st.markdown('### 사용 일수에 따른 유량 증가·마모 추정')
         fields=[('reference','새 노즐 기준 유량 (L/min)',1.),('measured','현재 측정 유량 (L/min)',1.1),('elapsed','현재까지 실제 사용 일수 (일)',100.),('future','향후 추가 사용 일수 (일)',50.)]
-        note='동일한 압력·유체·온도에서 측정한 노즐당 유량을 비교합니다. 표시하는 마모율은 유량 증가율이며 실제 재료 마모율이 아닙니다. 하루 가동시간과 사용 조건이 같고 유량 증가 속도가 일정하다고 가정한 선형 추정입니다. 실제 마모는 비선형일 수 있어 교체 시점 보증값으로 사용할 수 없습니다.'
+        note='동일한 압력·유체·온도에서 측정한 노즐당 유량을 비교합니다. 표시하는 마모율은 유량 증가율이며 실제 재료 마모율이 아닙니다. 하루 가동시간과 사용 조건이 같고 유량 증가 속도가 일정하다고 가정한 선형 추정입니다. 월 유량 증가량은 30일 기준입니다. 실제 마모는 비선형일 수 있어 교체 시점 보증값으로 사용할 수 없습니다.'
         formula='예상 유량 = 현재 유량 + (현재 유량 − 새 노즐 유량) ÷ 사용 일수 × 추가 사용 일수'
     else:
         st.markdown('### 간헐 분사량·노즐 유량 계산')
         mode=st.radio('계산 방향',['1회 분사량 → 노즐 유량','노즐 유량 → 1회 분사량'],horizontal=True,key='pulse_new_direction')
         calc='pulse_reverse' if mode.startswith('1회') else 'pulse_forward'
-        fields=[('volume','노즐당 1회 ON 분사량 (mL)',10.)] if calc=='pulse_reverse' else [('flow','노즐당 ON 유량 (L/min)',.6)]
+        fields=[('volume','노즐당 1회 ON 분사량 (mL)',10.)] if calc=='pulse_reverse' else [('flow','노즐당 ON 유량 (L/min)',1.)]
         fields += [('on','ON 분사 시간 (초)',1.),('off','OFF 정지 시간 (초)',1.)]
         note='정지 시간은 주기 평균 유량과 시간당 사용량에 반영됩니다. ON 중 노즐 유량은 1회 분사량과 ON 시간으로 결정되므로 OFF 시간만 변경해도 변하지 않습니다. 밸브 응답 지연과 기동 과도유량은 제외합니다.'
-        formula='노즐당 ON 유량(L/min) = 1회 분사량(mL) ÷ ON 시간(초) × 60 ÷ 1000'
+        formula='노즐당 평균 유량(L/min) = 1회 분사량(mL) ÷ (ON 시간 + OFF 시간)(초) × 60 ÷ 1000'
     left,right=st.columns(2);a=dict(extra)
     with left:
         for key,label,default in fields:
-            a[key]=st.number_input(label,min_value=0.,max_value=100. if key=='efficiency' else None,value=default,step=1. if key in ('count','elapsed','future') else .01,format='%.2f',key='spray_v2_'+kind+'_'+key)
+            integer_display=kind in ('coating','pulse') or key in ('elapsed','future')
+            a[key]=st.number_input(label,min_value=0.,max_value=100. if key=='efficiency' else None,value=default,step=1. if integer_display else .01,format='%.0f' if integer_display else '%.2f',key='spray_v3_'+kind+'_'+key)
         st.caption(note)
     with right:
         try:
             rows=spray_aux_result(calc,a)
-            for label,value,unit in rows: st.metric(label,f'{value:,.2f} {unit}')
+            for label,value,unit in rows:
+                decimals = 2 if 'L/min' in unit else 0
+                st.metric(label,f'{value:,.{decimals}f} {unit}')
+            if kind=='coating': st.caption('L/min 결과 외에는 정수로 반올림하여 표시합니다. 작은 면적(m²)이나 짧은 시간은 0으로 보일 수 있으나 계산은 반올림 전 값을 사용합니다.')
             if kind=='wear' and a['measured']<a['reference']: st.warning('현재 유량이 새 노즐보다 작아 마모 증가 추정을 표시하지 않습니다. 압력·막힘·측정 조건을 확인하세요.')
             st.caption(formula)
         except (ValueError,OverflowError) as e: st.warning(str(e))
