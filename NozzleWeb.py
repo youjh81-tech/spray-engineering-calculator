@@ -634,9 +634,9 @@ html,body,[class*="css"],[data-testid="stAppViewContainer"]{font-family:"Noto Sa
 [data-testid="stSidebar"]{display:none} #MainMenu,footer{visibility:hidden}
 .site-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:70px;padding:.65rem 1rem;margin-bottom:1rem;border:1px solid var(--line);background:rgba(255,255,255,.97);box-shadow:0 9px 28px rgba(7,40,68,.07)}
 .brand{display:flex;align-items:center;gap:.8rem;text-decoration:none!important}.brand img{width:215px;height:43px;object-fit:contain;object-position:left}.brand-fallback{display:none;color:var(--navy);font-weight:800}.brand small{color:#62798b;font-size:.7rem;font-weight:700}.app-id{text-align:right}.app-id strong{display:block;color:var(--navy);font-size:.88rem}.app-id span{color:#7a8e9d;font-size:.66rem;letter-spacing:.1em}
-.hero{position:relative;overflow:hidden;min-height:280px;display:flex;align-items:center;padding:clamp(1.7rem,5vw,4rem);background:radial-gradient(ellipse at 87% 11%,rgba(0,190,239,.50),transparent 42%),linear-gradient(112deg,#061a2d,#083b60 63%,#007cab);box-shadow:0 22px 52px rgba(7,40,68,.18)}
+.hero{position:relative;overflow:hidden;min-height:180px;display:flex;align-items:center;padding:20px clamp(1.7rem,5vw,4rem);background:radial-gradient(ellipse at 87% 11%,rgba(0,190,239,.50),transparent 42%),linear-gradient(112deg,#061a2d,#083b60 63%,#007cab);box-shadow:0 22px 52px rgba(7,40,68,.18)}
 .hero:after{content:"";position:absolute;right:-12%;top:-72%;width:620px;height:620px;border:1px solid rgba(255,255,255,.25);border-radius:50%;box-shadow:0 0 0 55px rgba(255,255,255,.04),0 0 0 110px rgba(255,255,255,.025)}
-.hero>div{position:relative;z-index:1}.eyebrow{color:#6ddcff;font-size:.72rem;font-weight:800;letter-spacing:.18em}.hero h1{margin:.45rem 0 .65rem;color:#fff;font-size:clamp(2rem,5vw,3.8rem);line-height:1.08;letter-spacing:-.05em}.hero p{margin:0;color:#d7edf6;font-size:1rem}
+.hero>div{position:relative;z-index:1}.eyebrow{color:#6ddcff;font-size:.72rem;font-weight:800;letter-spacing:.18em}.hero h1{padding:0!important;margin:.45rem 0 .65rem;color:#fff;font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.08;letter-spacing:-.05em}.hero p{margin:0;color:#d7edf6;font-size:1rem}
 .section-kicker{margin-top:2rem;color:#0072ae;font-size:.7rem;font-weight:800;letter-spacing:.16em}.section-title{margin:.2rem 0;color:var(--navy);font-size:clamp(1.45rem,3vw,2.1rem);font-weight:800}.section-copy{color:var(--muted);font-size:.88rem;margin-bottom:1rem}
 .menu-card{min-height:215px;padding:1.25rem;border:1px solid var(--line);border-top:4px solid var(--blue);background:#fff;box-shadow:0 13px 32px rgba(7,40,68,.075)}.menu-card.pending{border-top-color:#a8b6c0;background:#f8fafb}.menu-card .num{color:var(--blue);font-size:.7rem;font-weight:800;letter-spacing:.14em}.menu-card.pending .num{color:#8596a3}.menu-card h3{margin:.7rem 0 .5rem;color:var(--navy);font-size:1.16rem}.menu-card p{min-height:63px;color:var(--muted);font-size:.82rem;line-height:1.65}.pill{display:inline-block;padding:.28rem .58rem;border-radius:99px;background:#e1f5fc;color:#006d9e;font-size:.66rem;font-weight:800}.pending .pill{background:#e9eef1;color:#71818d}
 .calc-intro{display:flex;align-items:center;justify-content:space-between;gap:2rem;margin:.25rem 0 1.35rem;padding:1.35rem 1.5rem;border:1px solid #cbdde7;border-left:6px solid var(--blue);background:linear-gradient(120deg,#fff 0,#f3f9fc 66%,#e1f3fa 100%);box-shadow:0 10px 28px rgba(7,40,68,.07)}.calc-intro .calc-index{color:#0079b6;font-size:.68rem;font-weight:800;letter-spacing:.16em}.calc-intro h1{margin:.3rem 0 .35rem;color:var(--navy);font-size:clamp(1.65rem,3vw,2.25rem);letter-spacing:-.045em}.calc-intro p{margin:0;color:#587184;font-size:.84rem}.calc-formula{flex:0 0 auto;padding:.75rem 1rem;border-radius:4px;background:#072844;color:#fff;font:700 1rem/1.2 Georgia,serif;letter-spacing:.04em}
@@ -654,7 +654,7 @@ div[data-baseweb="radio"]{gap:.4rem}div[data-baseweb="radio"] label{padding:.45r
 [data-testid="stTextInput"] input::placeholder{color:#b9c3cc!important;-webkit-text-fill-color:#b9c3cc!important;opacity:1!important}[data-testid="stTextInput"] input:focus::placeholder{color:transparent!important;-webkit-text-fill-color:transparent!important}
 [data-testid="stNumberInput"] button{display:none!important}
 .stButton>button,.stDownloadButton>button{min-height:42px;border-radius:2px;font-weight:750;color:#fff!important;-webkit-text-fill-color:#fff!important;background:#111827!important;border-color:#111827!important}.stButton>button *,.stDownloadButton>button *{color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important}.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{border-color:var(--blue)!important;background:var(--blue)!important}
-@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:235px;padding:1.5rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}.reference-guide{padding:.65rem}.catalog-table-head{align-items:flex-start;padding:.7rem}.catalog-table-head em{display:none}.guide-copy{grid-template-columns:1fr 1fr}.workspace-head span{font-size:.74rem}.workspace-head h2{font-size:1.32rem}.workspace-head p{font-size:.84rem}}
+@media(max-width:720px){[data-testid="stMainBlockContainer"]{padding:.55rem .75rem 2rem}.site-head{align-items:flex-start;padding:.6rem}.brand img{width:150px;height:34px}.brand small,.app-id span{display:none}.app-id strong{font-size:.7rem}.hero{min-height:150px;padding:1rem 1.1rem}.hero p{font-size:.85rem}.menu-card{min-height:185px}.calc-intro{align-items:flex-start;padding:1rem}.calc-formula{display:none}.reference-guide{padding:.65rem}.catalog-table-head{align-items:flex-start;padding:.7rem}.catalog-table-head em{display:none}.guide-copy{grid-template-columns:1fr 1fr}.workspace-head span{font-size:.74rem}.workspace-head h2{font-size:1.32rem}.workspace-head p{font-size:.84rem}}
 @media(max-width:720px){.workspace-head span{font-size:.84rem}.workspace-head h2{font-size:1.48rem}.workspace-head p{font-size:.9rem}}
 .coefficient-note{font-size:.82rem!important;line-height:1.5;color:#405b70!important;padding:4px 8px;background:#edf3f7;border-radius:4px}.coefficient-note b{font-size:.87rem!important;color:#173c57!important}
 [data-testid="stMetric"]{background:#e0f2fb!important;border-radius:6px;padding:12px 15px!important;min-height:90px!important}
@@ -1857,6 +1857,33 @@ def spray_aux_result(kind: str, a: dict) -> list:
     return rows
 
 
+def spray_grouped_results(kind: str, rows: list, inputs: dict) -> None:
+    from html import escape
+    data = {label:(value,unit) for label,value,unit in rows}
+    def value(label):
+        if label not in data: return '—'
+        number,unit=data[label]
+        decimals=2 if 'L/min' in unit else 0
+        return f'{number:,.{decimals}f} {unit}'
+    def table(title, headings, body):
+        cells=''.join('<tr>'+''.join('<td>'+escape(str(c))+'</td>' for c in row)+'</tr>' for row in body)
+        return '<section class="spray-summary"><h3>'+escape(title)+'</h3><table><thead><tr>'+''.join('<th>'+escape(c)+'</th>' for c in headings)+'</tr></thead><tbody>'+cells+'</tbody></table></section>'
+    css='<style>.spray-summary{background:white;border:1px solid #cbdde7;border-radius:8px;margin:0 0 14px;padding:14px;color:#17394f;color-scheme:light}.spray-summary h3{font-size:17px!important;margin:0 0 10px!important;color:#17394f!important}.spray-summary table{width:100%;border-collapse:collapse;font-size:14px}.spray-summary th{background:#e3f2fa;color:#17394f}.spray-summary td,.spray-summary th{padding:9px 8px;border-bottom:1px solid #dce7ed;text-align:left;overflow-wrap:anywhere;color:#17394f!important}.spray-summary td:not(:first-child){font-weight:600}.spray-summary tr:last-child td{border-bottom:0}</style>'
+    if kind=='coating':
+        moving=inputs['moving']==1
+        head=['구분','분사 중 ON 유량']+(['분당 평균 유량'] if moving else [])
+        body=[['노즐 1개',value('필요 노즐당 ON 유량')]+([value('노즐당 분당 평균 유량')] if moving else []),['전체 노즐',value('필요 전체 ON 유량')]+([value('전체 분당 평균 유량')] if moving else [])]
+        html=table('필요 노즐 유량',head,body)
+        html+=table('제품 1개 기준',['항목','계산 결과'],[['면적',value('제품 면적')+' / '+value('제품 면적 (제곱미터)')],['ON 분사 시간',value('제품당 ON 분사 시간')],['총 분사량',value('제품당 총 분사량')]])
+        if moving:
+            html+=table('제품 이송',['항목','계산 결과'],[['입력 수량 / 최대 수량',value('분당 이송 제품 수량')+' / '+value('최대 이송 제품 수량 (간격 없음)')],['제품 사이 간격',value('제품 사이 간격')]])
+    else:
+        html=table('현재 상태와 향후 예상',['항목','현재','예상'],[['사용 일수',value('현재까지 사용 일수'),value('예상 누적 사용 일수')],['노즐 유량',f"{inputs['measured']:,.2f} L/min",value('예상 노즐 유량')],['유량 증가율',value('현재 유량 증가율 (마모 지표)'),value('예상 유량 증가율 (마모 지표)')]])
+        if '월 유량 증가량' in data:
+            html+=table('예측 기준',['항목','값'],[['새 노즐 기준 유량',f"{inputs['reference']:,.2f} L/min"],['추가 사용 일수',f"{inputs['future']:,.0f} 일"],['월 유량 증가량 (30일)',value('월 유량 증가량')]])
+    st.markdown(css+html,unsafe_allow_html=True)
+
+
 def spray_aux_panel(kind: str) -> None:
     extra={};calc=kind
     if kind=='coating':
@@ -1890,9 +1917,12 @@ def spray_aux_panel(kind: str) -> None:
     with right:
         try:
             rows=spray_aux_result(calc,a)
-            for label,value,unit in rows:
-                decimals = 2 if 'L/min' in unit else 0
-                st.metric(label,f'{value:,.{decimals}f} {unit}')
+            if kind in ('coating','wear'):
+                spray_grouped_results(kind, rows, a)
+            else:
+                for label,value,unit in rows:
+                    decimals = 2 if 'L/min' in unit else 0
+                    st.metric(label,f'{value:,.{decimals}f} {unit}')
             if kind=='coating': st.caption('L/min 결과 외에는 정수로 반올림하여 표시합니다. 작은 면적(m²)이나 짧은 시간은 0으로 보일 수 있으나 계산은 반올림 전 값을 사용합니다.')
             if kind=='wear' and a['measured']<a['reference']: st.warning('현재 유량이 새 노즐보다 작아 마모 증가 추정을 표시하지 않습니다. 압력·막힘·측정 조건을 확인하세요.')
             st.caption(formula)
