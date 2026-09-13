@@ -1871,7 +1871,7 @@ def spray_grouped_results(kind: str, rows: list, inputs: dict) -> None:
     css='<style>.spray-summary{background:white;border:1px solid #cbdde7;border-radius:8px;margin:0 0 14px;padding:14px;color:#17394f;color-scheme:light}.spray-summary h3{font-size:17px!important;margin:0 0 10px!important;color:#17394f!important}.spray-summary table{width:100%;border-collapse:collapse;font-size:14px}.spray-summary th{background:#e3f2fa;color:#17394f}.spray-summary td,.spray-summary th{padding:9px 8px;border-bottom:1px solid #dce7ed;text-align:left;overflow-wrap:anywhere;color:#17394f!important}.spray-summary td:not(:first-child){font-weight:600}.spray-summary tr:last-child td{border-bottom:0}</style>'
     if kind=='coating':
         moving=inputs['moving']==1
-        head=['구분','분사 중 ON 유량']+(['분당 평균 유량'] if moving else [])
+        head=['구분','연속 분사 분당 유량']+(['노즐 ON 분사 유량'] if moving else [])
         body=[['노즐 1개',value('필요 노즐당 ON 유량')]+([value('노즐당 분당 평균 유량')] if moving else []),['전체 노즐',value('필요 전체 ON 유량')]+([value('전체 분당 평균 유량')] if moving else [])]
         html=table('필요 노즐 유량',head,body)
         html+=table('제품 1개 기준',['항목','계산 결과'],[['면적',value('제품 면적')+' / '+value('제품 면적 (제곱미터)')],['ON 분사 시간',value('제품당 ON 분사 시간')],['총 분사량',value('제품당 총 분사량')]])
