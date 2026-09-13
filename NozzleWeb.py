@@ -1912,7 +1912,9 @@ def spray_aux_panel(kind: str) -> None:
     with left:
         for key,label,default in fields:
             integer_display=kind in ('coating','pulse') or key in ('elapsed','future')
-            a[key]=st.number_input(label,min_value=0.,max_value=100. if key=='efficiency' else None,value=default,step=1. if integer_display else .01,format='%.0f' if integer_display else '%.2f',key='spray_v3_'+kind+'_'+key)
+            if kind=='coating' and key=='efficiency':
+                st.markdown('<div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px;color:#294a61;font-size:14px"><span>도포 효율 (Puls%)</span><mark style="background:#fff2a8;color:#593f00;padding:3px 7px;border-radius:4px;font-weight:700">도표 효율과 노즐 추천 유량은 반비례</mark></div>',unsafe_allow_html=True)
+            a[key]=st.number_input(label,min_value=0.,max_value=100. if key=='efficiency' else None,value=default,step=1. if integer_display else .01,format='%.0f' if integer_display else '%.2f',key='spray_v3_'+kind+'_'+key,label_visibility='collapsed' if kind=='coating' and key=='efficiency' else 'visible')
         st.caption(note)
     with right:
         try:
